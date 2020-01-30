@@ -1,6 +1,8 @@
 ﻿using Keras;
 using Keras.Layers;
 using Keras.Models;
+using Keras.Optimizers;
+using Keras.PreProcessing.Image;
 using Numpy;
 using System;
 using System.IO;
@@ -11,38 +13,94 @@ namespace LegoVision
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var img_width = 150;
+            var img_height = 150;
+            var train_data_dir = "data/train";
+            var valid_data_dir = "data/validation";
 
-            //Load train data
-            NDarray x = np.array(new float[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } });
-            NDarray y = np.array(new float[] { 0, 1, 1, 0 });
+            var datagen = new ImageDataGenerator(rescale: 1f / 255f);
 
-            //Build sequential model
+            var train_generator = datagen.FlowFromDirectory(
+                directory: train_data_dir,
+                target_size: (img_width, img_height).ToTuple(),
+                classes: new string[] { "dogs", "cats" },
+                class_mode: "binary",
+                batch_size: 16);
+
+            var validation_generator = datagen.FlowFromDirectory(
+                directory: valid_data_dir,
+                target_size: (img_width, img_height).ToTuple(),
+                classes: new string[] { "dogs", "cats" },
+                class_mode: "binary",
+                batch_size: 32);
+
+
             var model = new Sequential();
-            model.Add(new Dense(32, activation: "relu", input_shape: new Shape(2)));
-            model.Add(new Dense(64, activation: "relu"));
-            model.Add(new Dense(1, activation: "sigmoid"));
 
-            //Compile and train
-            model.Compile(optimizer: "sgd", loss: "binary_crossentropy", metrics: new string[] { "accuracy" });
-            model.Fit(x, y, batch_size: 2, epochs: 1000, verbose: 1);
+            model.Add(new Conv2D(32, (3, 3).ToTuple(), input_shape: (img_width, img_height, 3)));
+            model.Add(new Activation("relu"));
+            model.Add(new MaxPooling2D(pool_size: (2, 2).ToTuple()));
 
-            ////Save model and weights
-            //string json = model.ToJson();
-            //File.WriteAllText("model.json", json);
-            //model.SaveWeight("model.h5");
+            model.Add(new Conv2D(32, (3, 3).ToTuple(), input_shape: (img_width, img_height, 3)));
+            model.Add(new Activation("relu"));
+            model.Add(new MaxPooling2D(pool_size: (2, 2).ToTuple()));
 
-            ////Load model and weight
-            //var loaded_model = Sequential.ModelFromJson(File.ReadAllText("model.json"));
-            //loaded_model.LoadWeight("model.h5");
+            model.Add(new Conv2D(64, (3, 3).ToTuple(), input_shape: (img_width, img_height, 3)));
+            model.Add(new Activation("relu"));
+            model.Add(new MaxPooling2D(pool_size: (2, 2).ToTuple()));
 
+            model.Add(new Flatten());
+            model.Add(new Dense(64));
+            model.Add(new Activation("relu"));
+            model.Add(new Dropout(0.5));
+            model.Add(new Dense(1));
+            model.Add(new Activation("sigmoid"));
 
-            //Load train data
-            NDarray testInput = np.array(new float[,] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } });
+            model.Compile(
+                loss: "binary_crossentropy", 
+                optimizer: "rmsprop", 
+                metrics: new string[] { "accuracy" });
 
-            Console.WriteLine(model.Predict(testInput).ToString());
+            print("model complied!!");
+
+            //print("starting training....");
+            //var training = model.FitGenerator(
+            //    generator: train_generator,
+            //    steps_per_epoch: 2048 / 16,
+            //    epochs: 20,
+            //    validation_data: validation_generator,
+            //    validation_steps: 832 / 16);
+            //print("training finished!!");
+
+            //print("saving weights to catdog1.h5");
+            //model.SaveWeight("models/catdog1.h5");
+            //print("all weights saved successfully !!");
+
+            model.LoadWeight("models/catdog1.h5");
+
+            print("prediction:");
+            var img = np.expand_dims(ImageUtil.ImageToArray(ImageUtil.LoadImg("data/train/dogs/dog.480.jpg", target_size: (img_width, img_height))), 0);
+
+            NDarray result = model.Predict(img);
+            print(result);
+            if (result.flatten().GetData<float>()[0] == 1)
+            {
+                print("cat");
+            }
+            else
+            {
+                print("dog");
+            }
 
             Console.ReadKey();
         }
+
+
+        public static void print(object msg)
+        {
+            Console.WriteLine(msg.ToString());
+        }
+
+
     }
 }
