@@ -11,12 +11,16 @@ namespace LegoVision
 {
     class Program
     {
+        private const string data_set = "cats_dogs";
+        private const string data_dir = data_set + "/data";
+        private const string models_dir = data_set + "/models";
+        private const string train_data_dir = data_dir + "/train";
+        private const string valid_data_dir = data_dir + "/validation";
+
         static void Main(string[] args)
         {
             var img_width = 150;
             var img_height = 150;
-            var train_data_dir = "data/train";
-            var valid_data_dir = "data/validation";
 
             var datagen = new ImageDataGenerator(rescale: 1f / 255f);
 
@@ -63,23 +67,26 @@ namespace LegoVision
 
             print("model complied!!");
 
-            //print("starting training....");
-            //var training = model.FitGenerator(
-            //    generator: train_generator,
-            //    steps_per_epoch: 2048 / 16,
-            //    epochs: 20,
-            //    validation_data: validation_generator,
-            //    validation_steps: 832 / 16);
-            //print("training finished!!");
+            print("starting training....");
+            var training = model.FitGenerator(
+                generator: train_generator,
+                steps_per_epoch: 2048 / 16,
+                epochs: 20,
+                validation_data: validation_generator,
+                validation_steps: 832 / 16);
+            print("training finished!!");
 
-            //print("saving weights to catdog1.h5");
-            //model.SaveWeight("models/catdog1.h5");
-            //print("all weights saved successfully !!");
+            // Save model and weights
+            print("saving weights to catdog1.h5");
+            var file = $"{models_dir}/{data_set}_1";
+            File.WriteAllText(file+".json", model.ToJson());
+            model.SaveWeight(file+".h5");
+            print("all weights saved successfully !!");
 
-            model.LoadWeight("models/catdog1.h5");
+            //model.LoadWeight("models/catdog1.h5");
 
             print("prediction:");
-            var img = np.expand_dims(ImageUtil.ImageToArray(ImageUtil.LoadImg("data/train/dogs/dog.480.jpg", target_size: (img_width, img_height))), 0);
+            var img = np.expand_dims(ImageUtil.ImageToArray(ImageUtil.LoadImg($"{train_data_dir}/dogs/dog.480.jpg", target_size: (img_width, img_height))), 0);
 
             NDarray result = model.Predict(img);
             print(result);
