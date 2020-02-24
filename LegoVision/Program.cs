@@ -79,14 +79,14 @@ namespace LegoVision
             // Save model and weights
             print("saving weights to catdog1.h5");
             var file = $"{models_dir}/{data_set}_1";
-            File.WriteAllText(file+".json", model.ToJson());
-            model.SaveWeight(file+".h5");
+            File.WriteAllText(file + ".json", model.ToJson());
+            model.SaveWeight(file + ".h5");
             print("all weights saved successfully !!");
 
-            //model.LoadWeight("models/catdog1.h5");
+            //model.LoadWeight($"{models_dir}/{data_set}_1.h5");
 
             print("prediction:");
-            var img = np.expand_dims(ImageUtil.ImageToArray(ImageUtil.LoadImg($"{train_data_dir}/dogs/dog.480.jpg", target_size: (img_width, img_height))), 0);
+            var img = np.expand_dims(ImageUtil.ImageToArray(ImageUtil.LoadImg($"{valid_data_dir}/cats/cat.1324.jpg", target_size: (img_width, img_height))), 0);
 
             NDarray result = model.Predict(img);
             print(result);
