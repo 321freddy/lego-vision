@@ -22,12 +22,22 @@ namespace TrainDataCreator
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void start_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectDirAim_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectDirStart_Click(object sender, EventArgs e)
         {
 
         }
