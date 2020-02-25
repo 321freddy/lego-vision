@@ -29,7 +29,7 @@ namespace TrainDataCreator
 
         private void start_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void selectDirAim_Click(object sender, EventArgs e)
