@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ImageProcessor;
 using ImageProcessor.Imaging.Filters.EdgeDetection;
+using Emgu.CV;
 
 
 namespace TrainDataCreator
@@ -35,7 +36,6 @@ namespace TrainDataCreator
             {
                 imageProcessor.Load(filePaths[i]);
                 imageProcessor.DetectEdges(filter, false);
-
                 imageProcessor.Save(aimDir+"/res" +i + ".jpg");
             }
 
