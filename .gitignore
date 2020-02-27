@@ -13,7 +13,8 @@ docs/theme/img/*
 tags
 Keras.egg-info
 examples/img/*
-*.jpg
+datasets/*
+TrainDataCreator/Fotos
 
 # test-related
 .coverage
