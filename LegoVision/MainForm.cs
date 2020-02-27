@@ -27,13 +27,7 @@ namespace LegoVision
             InitializeComponent();
 
             // Extract dataset names from datasets directory (subfolders)
-            listBox1.DataSource =
-                Directory.GetDirectories("datasets")
-                .Select(
-                    dataset => string.Concat(dataset.Reverse().TakeWhile(s => !"/\\".Contains(s)).Reverse())
-                )
-                .Prepend("")
-                .ToArray();
+            listBox1.DataSource = DataSet.listAll().Prepend("").ToArray();
         }
 
         private void InitializeComponent()
@@ -165,7 +159,7 @@ namespace LegoVision
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                openFileDialog.InitialDirectory = model.data_set.dir;
                 openFileDialog.Filter = "Bilder (*.jpg)|*.jpg|All files (*.*)|*.*";
                 openFileDialog.FilterIndex = 0;
                 openFileDialog.RestoreDirectory = true;

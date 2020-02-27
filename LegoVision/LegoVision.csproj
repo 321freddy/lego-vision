@@ -35,8 +35,4 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="MKDIR &quot;$(TargetDir)datasets&quot;&#xD;&#xA;XCOPY &quot;$(SolutionDir)datasets&quot; &quot;$(TargetDir)datasets&quot; /E /Y" />
-  </Target>
-
 </Project>

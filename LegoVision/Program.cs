@@ -7,17 +7,23 @@ using Numpy;
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace LegoVision
 {
     public class Program
     {
 
+        public static string RootDir;
+
         [STAThread]
         static void Main(string[] args)
         {
-            var form = new MainForm();
-            form.ShowDialog();
+            RootDir = args.Aggregate((x,y) => x+" "+y) ?? "";
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
         }
 
 
