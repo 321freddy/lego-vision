@@ -28,23 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.startDirBox = new System.Windows.Forms.TextBox();
             this.start = new System.Windows.Forms.Button();
             this.currentPic = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.aimDirBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.selectDirAim = new System.Windows.Forms.Button();
             this.selectDirStart = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.currentPic)).BeginInit();
             this.SuspendLayout();
             // 
-            // textBox1
+            // startDirBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(51, 37);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(568, 20);
-            this.textBox1.TabIndex = 1;
+            this.startDirBox.Location = new System.Drawing.Point(51, 37);
+            this.startDirBox.Name = "startDirBox";
+            this.startDirBox.Size = new System.Drawing.Size(568, 20);
+            this.startDirBox.TabIndex = 1;
             // 
             // start
             // 
@@ -74,12 +74,12 @@
             this.label1.Text = "Zu bearbeitender Ordner";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
-            // textBox2
+            // aimDirBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(51, 78);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(568, 20);
-            this.textBox2.TabIndex = 11;
+            this.aimDirBox.Location = new System.Drawing.Point(51, 78);
+            this.aimDirBox.Name = "aimDirBox";
+            this.aimDirBox.Size = new System.Drawing.Size(568, 20);
+            this.aimDirBox.TabIndex = 11;
             // 
             // label2
             // 
@@ -118,11 +118,11 @@
             this.Controls.Add(this.selectDirStart);
             this.Controls.Add(this.selectDirAim);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.aimDirBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.currentPic);
             this.Controls.Add(this.start);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.startDirBox);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -133,11 +133,11 @@
         }
 
         #endregion
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox startDirBox;
         private System.Windows.Forms.Button start;
         private System.Windows.Forms.PictureBox currentPic;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox aimDirBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button selectDirAim;
         private System.Windows.Forms.Button selectDirStart;
