@@ -38,8 +38,7 @@ namespace TrainDataCreator
         public bool processImages()
         {
             collectImmages(startDir);
-            //IEdgeFilter filter = new RobertsCrossEdgeFilter();
-            //IMatrixFilter filter = new GreyScaleFilter();
+            IEdgeFilter filter = new RobertsCrossEdgeFilter();
 
             for (int i = 0; i < filePaths.Length; i++)
             {
@@ -47,11 +46,11 @@ namespace TrainDataCreator
                 Bitmap resized = new Bitmap(original, new Size(aimWidth, aimHeight));
 
                 Bitmap greyscale = MakeGrayscale3(resized);
-                greyscale.Save(aimDir + "/res" + i + ".png", System.Drawing.Imaging.ImageFormat.Png);
-                /*imageProcessor.Load(filePaths[i]);
-                imageProcessor.Filter(filter);
+                //greyscale.Save(aimDir + "/res" + i + ".png", ImageFormat.Png);
+                imageProcessor.Load(greyscale);
+                imageProcessor.DetectEdges(filter);
                 imageProcessor.Save(aimDir+"/res" +i + ".jpg");
-                */
+                
             }
 
 
