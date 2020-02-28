@@ -38,7 +38,7 @@ namespace TrainDataCreator
         public bool processImages()
         {
             collectImmages(startDir);
-            IEdgeFilter filter = new RobertsCrossEdgeFilter();
+            IEdgeFilter filter = new KirschEdgeFilter();
 
             for (int i = 0; i < filePaths.Length; i++)
             {
@@ -48,8 +48,11 @@ namespace TrainDataCreator
                 Bitmap greyscale = MakeGrayscale3(resized);
                 //greyscale.Save(aimDir + "/res" + i + ".png", ImageFormat.Png);
                 imageProcessor.Load(greyscale);
-                imageProcessor.DetectEdges(filter);
-                imageProcessor.Save(aimDir+"/res" +i + ".jpg");
+                imageProcessor.DetectEdges(filter, false);
+                aimDir = aimDir + "/res" + i + ".jpg";
+                imageProcessor.Save(aimDir);
+                //Als nächstes eine Binärisierung mit Threshhold auf dem Kanten Bild
+                //Dann alles im greyscale Bild nur Pixel behalten, die im Binär = 1
                 
             }
 
@@ -62,6 +65,7 @@ namespace TrainDataCreator
             filePaths = Directory.GetFiles(path);
         }
 
+        /* Langsamerer GreyScale Algorithmus
         public Bitmap MakeGrayscale(Bitmap original)
         {
             
@@ -88,7 +92,7 @@ namespace TrainDataCreator
             }
 
             return newBitmap;
-        }
+        }*/
         public static Bitmap MakeGrayscale3(Bitmap original)
         {
             //create a blank bitmap the same size as original
