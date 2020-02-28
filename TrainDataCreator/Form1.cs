@@ -15,6 +15,8 @@ namespace TrainDataCreator
         FolderBrowserDialog folderDlg = new FolderBrowserDialog();
         private string aimDir;
         private string startDir;
+        private int aimWidth =  1920;
+        private int aimHeight =  1080;
         ImageProcessing processor;
 
         public Form1()
@@ -34,7 +36,7 @@ namespace TrainDataCreator
 
         private void start_Click(object sender, EventArgs e)
         {
-            processor = new ImageProcessing(aimDir, startDir);
+            processor = new ImageProcessing(aimDir, startDir, aimHeight, aimWidth);
             processor.processImages();
         }
 
@@ -50,6 +52,17 @@ namespace TrainDataCreator
             folderDlg.ShowDialog();
             startDir = folderDlg.SelectedPath;
             startDirBox.Text = startDir;
+        }
+
+        private void aimWidth_TextChanged(object sender, EventArgs e)
+        {
+            this.aimWidth = Convert.ToInt16(aimWidthText.Text);
+        }
+
+        private void aimHeightText_TextChanged(object sender, EventArgs e)
+        {
+            this.aimHeight = Convert.ToInt16(aimHeightText.Text);
+
         }
     }
 }
