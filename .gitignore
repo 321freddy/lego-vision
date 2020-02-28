@@ -14,7 +14,7 @@ tags
 Keras.egg-info
 examples/img/*
 datasets/*
-TrainDataCreator/Fotos
+TrainDataCreator/Fotos/*
 
 # test-related
 .coverage

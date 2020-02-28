@@ -12,6 +12,13 @@ namespace TrainDataCreator
 {
     public partial class Form1 : Form
     {
+        FolderBrowserDialog folderDlg = new FolderBrowserDialog();
+        private string aimDir;
+        private string startDir;
+        private int aimWidth =  1920;
+        private int aimHeight =  1080;
+        ImageProcessing processor;
+
         public Form1()
         {
             InitializeComponent();
@@ -29,16 +36,32 @@ namespace TrainDataCreator
 
         private void start_Click(object sender, EventArgs e)
         {
-            
+            processor = new ImageProcessing(aimDir, startDir, aimHeight, aimWidth);
+            processor.processImages();
         }
 
         private void selectDirAim_Click(object sender, EventArgs e)
         {
-
+            folderDlg.ShowDialog();
+            aimDir = folderDlg.SelectedPath;
+            aimDirBox.Text = aimDir;
         }
 
         private void selectDirStart_Click(object sender, EventArgs e)
         {
+            folderDlg.ShowDialog();
+            startDir = folderDlg.SelectedPath;
+            startDirBox.Text = startDir;
+        }
+
+        private void aimWidth_TextChanged(object sender, EventArgs e)
+        {
+            this.aimWidth = Convert.ToInt16(aimWidthText.Text);
+        }
+
+        private void aimHeightText_TextChanged(object sender, EventArgs e)
+        {
+            this.aimHeight = Convert.ToInt16(aimHeightText.Text);
 
         }
     }
