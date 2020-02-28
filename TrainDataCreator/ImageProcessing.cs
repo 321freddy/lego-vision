@@ -45,7 +45,7 @@ namespace TrainDataCreator
                 Bitmap resized = new Bitmap(original, new Size(aimWidth, aimHeight));
 
                 Bitmap greyscale = Makegreyscale(resized);
-                greyscale.Save(aimDir + "/res" + i + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+                greyscale.Save(aimDir + "/res" + i + ".png", System.Drawing.Imaging.ImageFormat.Png);
                 /*imageProcessor.Load(filePaths[i]);
                 imageProcessor.Filter(filter);
                 imageProcessor.Save(aimDir+"/res" +i + ".jpg");
