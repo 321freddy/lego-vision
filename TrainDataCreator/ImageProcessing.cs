@@ -9,6 +9,9 @@ using ImageProcessor.Imaging.Filters.EdgeDetection;
 using ImageProcessor.Imaging.Filters.Photo;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Emgu.CV;
+using Emgu.CV.Structure;
+
 
 
 
@@ -39,9 +42,11 @@ namespace TrainDataCreator
         {
             collectImmages(startDir);
             IEdgeFilter filter = new KirschEdgeFilter();
+            int threshold_value = 150; //0-255
 
             for (int i = 0; i < filePaths.Length; i++)
             {
+                string aimDirThis = aimDir + "/res" + i + ".png";
                 Image original = Image.FromFile((filePaths[i]));
                 Bitmap resized = new Bitmap(original, new Size(aimWidth, aimHeight));
 
@@ -49,11 +54,49 @@ namespace TrainDataCreator
                 //greyscale.Save(aimDir + "/res" + i + ".png", ImageFormat.Png);
                 imageProcessor.Load(greyscale);
                 imageProcessor.DetectEdges(filter, false);
-                aimDir = aimDir + "/res" + i + ".jpg";
-                imageProcessor.Save(aimDir);
+                imageProcessor.Save(aimDirThis);
+
                 //Als nächstes eine Binärisierung mit Threshhold auf dem Kanten Bild
                 //Dann alles im greyscale Bild nur Pixel behalten, die im Binär = 1
+                Image<Gray, Byte> img = new Image<Gray, Byte>(aimDirThis);
                 
+                img = img.ThresholdBinary(new Gray(threshold_value), new Gray(255)).Dilate(1).Erode(1);
+                var labels = new Mat();
+                var stats = new Mat();
+                var centroids = new Mat();
+                var nLabels = CvInvoke.ConnectedComponentsWithStats(img, labels, stats, centroids);
+
+                int biggestIndex = 0;
+                int biggestArea = 0; int[] statsData = new int[stats.Rows * stats.Cols];
+                stats.CopyTo(statsData);
+                for (int j = 1; j < stats.Rows; j++){
+                    var area = statsData[i * stats.Cols + 4];
+                    if (area  >  biggestArea)
+                    {
+                        biggestArea = area;
+                        biggestIndex = j;
+                    }
+                }
+
+
+
+                /*
+                     var x = statsData[i * stats.Cols + 0];
+                     var y = statsData[i * stats.Cols + 1];
+                     var width = statsData[i * stats.Cols + 2];
+                     var height = statsData[i * stats.Cols + 3];
+                     var area = statsData[i * stats.Cols + 4];
+                 */
+                //img.Save(aimDirThis);
+                Bitmap source = resized;
+                Rectangle section = new Rectangle(new Point(statsData[i * stats.Cols + 0],
+                                                            statsData[i * stats.Cols + 1]),
+                                                            new Size(statsData[i * stats.Cols + 2],
+                                                            statsData[i * stats.Cols + 3]));
+                Bitmap CroppedImage = CropImage(source, section);
+                CroppedImage.Save(aimDirThis, ImageFormat.Png);
+
+
             }
 
 
@@ -126,6 +169,16 @@ namespace TrainDataCreator
             //dispose the Graphics object
             g.Dispose();
             return newBitmap;
+        }
+
+        public Bitmap CropImage(Bitmap source, Rectangle section)
+        {
+            var bitmap = new Bitmap(section.Width, section.Height);
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+                return bitmap;
+            }
         }
 
     }
