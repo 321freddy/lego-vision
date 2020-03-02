@@ -67,10 +67,13 @@ namespace TrainDataCreator
                 var nLabels = CvInvoke.ConnectedComponentsWithStats(img, labels, stats, centroids);
 
                 int biggestIndex = 0;
-                int biggestArea = 0; int[] statsData = new int[stats.Rows * stats.Cols];
-                stats.CopyTo(statsData);
-                for (int j = 1; j < stats.Rows; j++){
-                    var area = statsData[i * stats.Cols + 4];
+                int biggestArea = 0;
+                int[] statsData = new int[stats.Rows * stats.Cols];
+                stats.CopyTo(statsData); // Inhalt der 2-D Matrix in 1D Array umwandeln
+
+                //Suche größter weißer Bereich
+                for (int j = 5; j < statsData.Length; j = j + 5){ //erste Component ist meistens das Schwarze, kann deswegen ignoriert werden
+                    var area = statsData[j + 4];
                     if (area  >  biggestArea)
                     {
                         biggestArea = area;
@@ -89,12 +92,13 @@ namespace TrainDataCreator
                  */
                 //img.Save(aimDirThis);
                 Bitmap source = resized;
-                Rectangle section = new Rectangle(new Point(statsData[i * stats.Cols + 0],
-                                                            statsData[i * stats.Cols + 1]),
-                                                            new Size(statsData[i * stats.Cols + 2],
-                                                            statsData[i * stats.Cols + 3]));
+                Rectangle section = new Rectangle(new Point(statsData[biggestIndex + 0],
+                                                            statsData[biggestIndex + 1]),
+                                                            new Size(statsData[biggestIndex + 2],
+                                                            statsData[biggestIndex + 3]));
                 Bitmap CroppedImage = CropImage(source, section);
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
+
 
 
             }
