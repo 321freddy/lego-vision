@@ -92,10 +92,13 @@ namespace TrainDataCreator
                  */
                 //img.Save(aimDirThis);
                 Bitmap source = resized;
-                Rectangle section = new Rectangle(new Point(statsData[biggestIndex + 0],
-                                                            statsData[biggestIndex + 1]),
-                                                            new Size(statsData[biggestIndex + 2],
-                                                            statsData[biggestIndex + 3]));
+
+                int componentX = statsData[biggestIndex + 0];
+                int componentY =  statsData[biggestIndex + 1];
+                int componentWidth = statsData[biggestIndex + 2];
+                int componentHeight = statsData[biggestIndex + 3];
+
+                Rectangle section = makeSquare(componentX, componentY, componentWidth, componentHeight);
                 Bitmap CroppedImage = CropImage(source, section);
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
 
@@ -183,6 +186,23 @@ namespace TrainDataCreator
                 g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
                 return bitmap;
             }
+        }
+
+        public Rectangle makeSquare(int x, int y, int width, int height)
+        {
+            if(width > height)
+            {
+                y = y - ((width - height) / 2);
+                height = width;
+                
+
+            }else if(height > width)
+            {
+                x = x - ((height - width) / 2);
+                width = height;
+            }
+
+            return new Rectangle(new Point(x,y),new Size(width,height));
         }
 
     }
