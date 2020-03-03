@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "LegoVision": {
-      "commandName": "Project",
-      "commandLineArgs": "$(SolutionDir)"
-    }
-  }
-}
