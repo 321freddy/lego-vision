@@ -98,8 +98,8 @@ namespace TrainDataCreator
                 int componentWidth = statsData[biggestIndex + 2];
                 int componentHeight = statsData[biggestIndex + 3];
 
-                Rectangle section = makeSquare(componentX, componentY, componentWidth, componentHeight);
-                Bitmap CroppedImage = CropImage(source, section);
+                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, source);
+                
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
 
 
@@ -188,21 +188,41 @@ namespace TrainDataCreator
             }
         }
 
-        public Rectangle makeSquare(int x, int y, int width, int height)
+        public Bitmap cropping(int x, int y, int width, int height, Bitmap source)
         {
-            if(width > height)
-            {
-                y = y - ((width - height) / 2);
-                height = width;
-                
+            int newY = 0;
+            int newHeight = 0;
+            int newX = 0;
+            int newWidth = 0;
+            Rectangle outsideRectangle1 = new Rectangle();
+            Rectangle outsideRectangle2 = new Rectangle();
 
-            }else if(height > width)
+            if (width > height)
             {
-                x = x - ((height - width) / 2);
-                width = height;
+                newY = y - ((width - height) / 2); //damit der Stein mittig im Bild ist
+                newHeight = width;
+                outsideRectangle1 = new Rectangle(newY,x,width, (width - height) / 2) ;
+                outsideRectangle2 = new Rectangle(y+height, x, width, (width - height) / 2);
+
+            }
+            else if(height > width)
+            {
+                newX = x - ((height - width) / 2);
+                newWidth = height;
+                outsideRectangle1 = new Rectangle(y, newX, (height - width) / 2,height);
+                outsideRectangle2 = new Rectangle(y, x + width, (height - width) / 2, height);
             }
 
-            return new Rectangle(new Point(x,y),new Size(width,height));
+            Graphics blacked = Graphics.FromImage(source);
+            blacked.FillRectangle(Brushes.Black, outsideRectangle1);
+            blacked.FillRectangle(Brushes.Black, outsideRectangle2);
+
+            Bitmap blackedBMP = new Bitmap(source.Width, source.Height, blacked);
+
+            Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
+            Bitmap cropedImage = CropImage(blackedBMP, section);
+
+            return cropedImage;
         }
 
     }
