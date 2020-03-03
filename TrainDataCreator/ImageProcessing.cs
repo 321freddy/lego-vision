@@ -190,10 +190,10 @@ namespace TrainDataCreator
 
         public Bitmap cropping(int x, int y, int width, int height, Bitmap source)
         {
-            int newY = 0;
-            int newHeight = 0;
-            int newX = 0;
-            int newWidth = 0;
+            int newY = y;
+            int newHeight = height;
+            int newX = x;
+            int newWidth = width;
             Rectangle outsideRectangle1 = new Rectangle();
             Rectangle outsideRectangle2 = new Rectangle();
 
@@ -201,23 +201,27 @@ namespace TrainDataCreator
             {
                 newY = y - ((width - height) / 2); //damit der Stein mittig im Bild ist
                 newHeight = width;
-                outsideRectangle1 = new Rectangle(newY,x,width, (width - height) / 2) ;
-                outsideRectangle2 = new Rectangle(y+height, x, width, (width - height) / 2);
+                outsideRectangle1 = new Rectangle(x, newY, width, (newHeight - height) / 2) ;
+                outsideRectangle2 = new Rectangle(x, y + height, width, (newHeight - height) / 2);
 
             }
             else if(height > width)
             {
                 newX = x - ((height - width) / 2);
                 newWidth = height;
-                outsideRectangle1 = new Rectangle(y, newX, (height - width) / 2,height);
-                outsideRectangle2 = new Rectangle(y, x + width, (height - width) / 2, height);
+                outsideRectangle1 = new Rectangle(newX, y , (newWidth - width) / 2,height);
+                outsideRectangle2 = new Rectangle(x + width, y , (newWidth - width) / 2, height);
             }
 
             Graphics blacked = Graphics.FromImage(source);
             blacked.FillRectangle(Brushes.Black, outsideRectangle1);
             blacked.FillRectangle(Brushes.Black, outsideRectangle2);
 
+           
+
             Bitmap blackedBMP = new Bitmap(source.Width, source.Height, blacked);
+
+            blackedBMP.Save("C: \\Users\\smith\\Documents\\GitHub\\lego - vision\\TrainDataCreator\\Fotos\\1x4 flat\\results\\test,png", ImageFormat.Png);
 
             Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
             Bitmap cropedImage = CropImage(blackedBMP, section);
