@@ -15,15 +15,18 @@ from lib import *
 train_datagen = ImageDataGenerator(
                 validation_split=0.3,
                 
-                samplewise_center=True,
+                samplewise_center=True, # FIXME: prepare std zca
                 samplewise_std_normalization=True,
                 zca_whitening=True,
+                rescale=1./255,
                 
                 horizontal_flip=True,
                 vertical_flip=True,
+                fill_mode="constant",
+                cval=0,
                 width_shift_range=0.1,
                 height_shift_range=0.1,
-                zoom_range=0.1,
+                zoom_range=[1.0,1.2],
                 rotation_range=90,)
 
 validation_datagen = ImageDataGenerator(
@@ -31,7 +34,8 @@ validation_datagen = ImageDataGenerator(
                 
                 samplewise_center=True,
                 samplewise_std_normalization=True,
-                zca_whitening=True,)
+                zca_whitening=True,
+                rescale=1./255,)
 
 train_generator = train_datagen.flow_from_directory(
                 directory     = train_dir,
@@ -39,7 +43,7 @@ train_generator = train_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                save_to_dir   = f"{train_dir}_traingen",
+                # save_to_dir   = f'{dataset_dir}/train_generated',
                 batch_size    = 1,
                 subset        = "training",)
 
@@ -49,7 +53,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                save_to_dir   = f"{train_dir}_validationgen",
+                # save_to_dir   = f'{dataset_dir}/validation_generated',
                 batch_size    = 1,
                 subset        = "validation",)
 

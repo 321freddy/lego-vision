@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import pickle
 
 
-img_width = 150
-img_height = 150
+img_width = 200
+img_height = 200
 
-dataset_name = 'lego_new_converted'
+dataset_name = 'lego_cropped_edgedetect'
 classes = ['1x4 flat','2x10 flat']
 
 # Paths
