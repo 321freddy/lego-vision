@@ -62,12 +62,12 @@ def plot_history(history):
     fig.add_subplot(1, 2, 1, title='Model loss', ylabel='Loss', xlabel='Epoch')
     plt.plot(history['loss'])
     plt.plot(history['val_loss'])
-    plt.legend(['Train', 'Validation'], loc='upper left')
+    plt.legend(['Train', 'Validation'], loc='best')
 
     # Plot training & validation accuracy values
     fig.add_subplot(1, 2, 2, title='Model accuracy', ylabel='Accuracy', xlabel='Epoch')
     plt.plot(history['accuracy'])
     plt.plot(history['val_accuracy'])
-    plt.legend(['Train', 'Validation'], loc='upper left')
+    plt.legend(['Train', 'Validation'], loc='best')
 
     plt.show()
