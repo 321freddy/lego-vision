@@ -91,12 +91,15 @@ namespace TrainDataCreator
                      var area = statsData[i * stats.Cols + 4];
                  */
                 //img.Save(aimDirThis);
-                Bitmap source = resized;
-                Rectangle section = new Rectangle(new Point(statsData[biggestIndex + 0],
-                                                            statsData[biggestIndex + 1]),
-                                                            new Size(statsData[biggestIndex + 2],
-                                                            statsData[biggestIndex + 3]));
-                Bitmap CroppedImage = CropImage(source, section);
+                Bitmap source = greyscale;
+
+                int componentX = statsData[biggestIndex + 0];
+                int componentY =  statsData[biggestIndex + 1];
+                int componentWidth = statsData[biggestIndex + 2];
+                int componentHeight = statsData[biggestIndex + 3];
+
+                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, source);
+                
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
 
 
@@ -112,34 +115,7 @@ namespace TrainDataCreator
             filePaths = Directory.GetFiles(path);
         }
 
-        /* Langsamerer GreyScale Algorithmus
-        public Bitmap MakeGrayscale(Bitmap original)
-        {
-            
-            //make an empty bitmap the same size as original
-            Bitmap newBitmap = new Bitmap(original.Width, original.Height);
-
-            for (int i = 0; i < original.Width; i++)
-            {
-                for (int j = 0; j < original.Height; j++)
-                {
-                    //get the pixel from the original image
-                    Color originalColor = original.GetPixel(i, j);
-
-                    //create the grayscale version of the pixel
-                    int grayScale = (int)((originalColor.R * .3) + (originalColor.G * .59) //TODO: QUellen für diese Zahelen
-                        + (originalColor.B * .11));
-
-                    //create the color object
-                    Color newColor = Color.FromArgb(grayScale, grayScale, grayScale);
-
-                    //set the new image's pixel to the grayscale version
-                    newBitmap.SetPixel(i, j, newColor);
-                }
-            }
-
-            return newBitmap;
-        }*/
+       
         public static Bitmap MakeGrayscale3(Bitmap original)
         {
             //create a blank bitmap the same size as original
@@ -183,6 +159,46 @@ namespace TrainDataCreator
                 g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
                 return bitmap;
             }
+        }
+
+        public Bitmap cropping(int x, int y, int width, int height, Bitmap source)
+        {
+            int newY = y;
+            int newHeight = height;
+            int newX = x;
+            int newWidth = width;
+            Rectangle outsideRectangle1 = new Rectangle();
+            Rectangle outsideRectangle2 = new Rectangle();
+
+            if (width > height)
+            {
+                newY = y - ((width - height) / 2); //damit der Stein mittig im Bild ist
+                newHeight = width;
+                outsideRectangle1 = new Rectangle(x, newY, width, (newHeight - height) / 2) ;
+                outsideRectangle2 = new Rectangle(x, y + height, width, (newHeight - height) / 2);
+
+            }
+            else if(height > width)
+            {
+                newX = x - ((height - width) / 2);
+                newWidth = height;
+                outsideRectangle1 = new Rectangle(newX, y , (newWidth - width) / 2,height);
+                outsideRectangle2 = new Rectangle(x + width, y , (newWidth - width) / 2, height);
+            }
+
+            Graphics blacked = Graphics.FromImage(source);
+            blacked.FillRectangle(Brushes.Black, outsideRectangle1);
+            blacked.FillRectangle(Brushes.Black, outsideRectangle2);
+
+           
+
+            Bitmap blackedBMP = new Bitmap(source.Width, source.Height, blacked);
+
+
+            Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
+            Bitmap cropedImage = CropImage(blackedBMP, section);
+
+            return cropedImage;
         }
 
     }
