@@ -20,7 +20,7 @@ def classify(img_path, fig=None, rows=1, cols=1, i=1):
     imgArray = np.expand_dims(image.img_to_array(img), 0)
     predict = model.predict(imgArray)
     predict_classes = model.predict_classes(imgArray)
-    result = [classes[i[0]] for i in predict_classes]
+    result = [classes[i] for i in predict_classes]
 
     print (f'{img_path} --> predict: {predict}  predict_classes: {predict_classes}  class: {result}')
     

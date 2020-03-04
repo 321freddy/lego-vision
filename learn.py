@@ -53,8 +53,9 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+model.add(Dense(len(classes)))
+# model.add(Activation('sigmoid'))
+model.add(Activation('softmax'))
 
 # TODO:
 # https://stackoverflow.com/questions/45799474/keras-model-evaluate-vs-model-predict-accuracy-difference-in-multi-class-nlp-ta
@@ -73,8 +74,8 @@ model.add(Activation('sigmoid'))
 # accuracy = ist das berechnete Ergebnis richtig? --> Epoch: correct guesses / total amount of guesses
 print('compiling model....')
 model.compile(
-    loss='binary_crossentropy',
-    optimizer='adadelta', # 'rmsprop',
+    loss='categorical_crossentropy', # 'binary_crossentropy',
+    optimizer='adadelta',
     metrics=['accuracy']) 
 print('model compiled!!')
 
