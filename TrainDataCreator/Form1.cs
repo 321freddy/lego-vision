@@ -38,6 +38,7 @@ namespace TrainDataCreator
         {
             processor = new ImageProcessing(aimDir, startDir, aimHeight, aimWidth);
             processor.processImages();
+            //processor.disposeTempFiles(aimDir);
         }
 
         private void selectDirAim_Click(object sender, EventArgs e)
@@ -64,5 +65,8 @@ namespace TrainDataCreator
             this.aimHeight = Convert.ToInt16(aimHeightText.Text);
 
         }
+
+         
+
     }
 }
