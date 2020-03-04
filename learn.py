@@ -93,8 +93,39 @@ training = model.fit_generator(
 history = training.history
 print('training finished!!')
 
- 
-
 lib.save(model, history)
 lib.plot_history(history)
+
+
+
+
+### predict manually
+
+correct = 0
+checked = 0
+for img in train_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
+
+    print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
+
+    if checked == train_generator.samples:
+        break
+
+print("\n\n")
+correct = 0
+checked = 0
+for img in validation_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
+
+    print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
+ 
+    if checked == validation_generator.samples:
+        break
+
 
