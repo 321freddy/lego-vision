@@ -13,7 +13,7 @@ from lib import *
 # step 1: load data
 
 train_datagen = ImageDataGenerator(
-                validation_split=0.2,
+                validation_split=0.3,
                 
                 samplewise_center=True,
                 samplewise_std_normalization=True,
@@ -27,7 +27,7 @@ train_datagen = ImageDataGenerator(
                 rotation_range=90,)
 
 validation_datagen = ImageDataGenerator(
-                validation_split=0.2,
+                validation_split=0.3,
                 
                 samplewise_center=True,
                 samplewise_std_normalization=True,
