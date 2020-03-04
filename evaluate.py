@@ -1,4 +1,4 @@
-from keras.preprocessing.image import image
+from keras.preprocessing.image import ImageDataGenerator, image
 
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -9,6 +9,11 @@ from lib import *
 model,history = lib.load()
 # lib.plot_history(history)
 
+datagen = ImageDataGenerator(
+                samplewise_center=True,
+                samplewise_std_normalization=True,
+                zca_whitening=True)
+
 
 def classify(img_path, fig=None, rows=1, cols=1, i=1):
     img = image.load_img(
@@ -18,6 +23,8 @@ def classify(img_path, fig=None, rows=1, cols=1, i=1):
     )
 
     imgArray = np.expand_dims(image.img_to_array(img), 0)
+    datagen.standardize(imgArray)
+
     predict = model.predict(imgArray)
     predict_classes = model.predict_classes(imgArray)
     result = [classes[i] for i in predict_classes]
@@ -37,7 +44,7 @@ rows = len(classes) # num classes
 cols = 10           # num pics per class
 for row in range(rows):
     for col in range(cols):
-        classify(f'{train_dir}/{classes[row]}/res{col+18}.png', fig=fig, rows=rows, cols=cols, i=row*cols+col+1)
+        classify(f'{train_dir}/{classes[row]}/res{col}.png', fig=fig, rows=rows, cols=cols, i=row*cols+col+1)
 
 plt.subplots_adjust(wspace=0.5, hspace=0.5, left=0.03, right=1-0.03)
 plt.show()

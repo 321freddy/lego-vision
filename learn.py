@@ -12,25 +12,41 @@ from lib import *
 
 # step 1: load data
 
-datagen = ImageDataGenerator(rescale = 1./255)
+datagen = ImageDataGenerator(
+                validation_split=0.2,
+                
+                samplewise_center=True,
+                samplewise_std_normalization=True,
+                zca_whitening=True,
+                
+                horizontal_flip=True,
+                vertical_flip=True,
+                width_shift_range=0.2,
+                height_shift_range=0.2,
+                rotation_range=90,)
 
 train_generator = datagen.flow_from_directory(
                 directory     = train_dir,
                 target_size   = (img_height, img_width),
                 classes       = classes,
-                class_mode    = "binary",
+                class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir = data_set.train_dir + "_converted",
-                batch_size    = 32)
+                # save_to_dir   = f"{train_dir}_converted",
+                batch_size    = 1,
+                subset        = "training",)
 
-print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}')
+validation_generator = datagen.flow_from_directory(
+                directory     = train_dir,
+                target_size   = (img_height, img_width),
+                classes       = classes,
+                class_mode    = "categorical", # "binary",
+                color_mode    = "grayscale",
+                # save_to_dir   = f"{train_dir}_converted_2",
+                batch_size    = 1,
+                subset        = "validation",)
 
-# validation_generator = datagen.flow_from_directory(directory=valid_data_dir,
-# 											   target_size=(img_width,img_height),
-# 											   classes=classes,
-# 											   class_mode='binary',
-# 											   batch_size=32)
-
+print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
+print(f'Validation generator samples: {validation_generator.samples}  batch size: {validation_generator.batch_size}  dir: {train_dir}')
 
 # step-2 : build model
 
@@ -81,15 +97,15 @@ print('model compiled!!')
 
 print('starting training....')
 training = model.fit_generator(
-    generator = train_generator,
     # epoch = full pass on entire dataset
     # steps per epoch = number of batches in one epoch
     # batch size = number of samples to work through before the model’s internal parameters 
     # are updated (using stochastic gradient decent)
-    steps_per_epoch = train_generator.samples // train_generator.batch_size,
     epochs = 100,
-    # validation_data = validation_generator,
-    # validation_steps = validation_generator.samples // train_generator.batch_size,
+    generator = train_generator,
+    steps_per_epoch = train_generator.samples // train_generator.batch_size,
+    validation_data = validation_generator,
+    validation_steps = validation_generator.samples // validation_generator.batch_size,
 )
 history = training.history
 print('training finished!!')
@@ -125,8 +141,9 @@ for img in validation_generator:
         correct += 1
 
     print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
- 
+
     if checked == validation_generator.samples:
         break
 
 
+    
