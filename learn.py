@@ -12,25 +12,49 @@ from lib import *
 
 # step 1: load data
 
-datagen = ImageDataGenerator(rescale = 1./255)
+train_datagen = ImageDataGenerator(
+                validation_split=0.3,
+                
+                samplewise_center=True,
+                samplewise_std_normalization=True,
+                zca_whitening=True,
+                
+                horizontal_flip=True,
+                vertical_flip=True,
+                width_shift_range=0.1,
+                height_shift_range=0.1,
+                zoom_range=0.1,
+                rotation_range=90,)
 
-train_generator = datagen.flow_from_directory(
+validation_datagen = ImageDataGenerator(
+                validation_split=0.3,
+                
+                samplewise_center=True,
+                samplewise_std_normalization=True,
+                zca_whitening=True,)
+
+train_generator = train_datagen.flow_from_directory(
                 directory     = train_dir,
                 target_size   = (img_height, img_width),
                 classes       = classes,
-                class_mode    = "binary",
+                class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir = data_set.train_dir + "_converted",
-                batch_size    = 32)
+                save_to_dir   = f"{train_dir}_traingen",
+                batch_size    = 1,
+                subset        = "training",)
 
-print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}')
+validation_generator = validation_datagen.flow_from_directory(
+                directory     = train_dir,
+                target_size   = (img_height, img_width),
+                classes       = classes,
+                class_mode    = "categorical", # "binary",
+                color_mode    = "grayscale",
+                save_to_dir   = f"{train_dir}_validationgen",
+                batch_size    = 1,
+                subset        = "validation",)
 
-# validation_generator = datagen.flow_from_directory(directory=valid_data_dir,
-# 											   target_size=(img_width,img_height),
-# 											   classes=classes,
-# 											   class_mode='binary',
-# 											   batch_size=32)
-
+print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
+print(f'Validation generator samples: {validation_generator.samples}  batch size: {validation_generator.batch_size}  dir: {train_dir}')
 
 # step-2 : build model
 
@@ -53,8 +77,9 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+model.add(Dense(len(classes)))
+# model.add(Activation('sigmoid'))
+model.add(Activation('softmax'))
 
 # TODO:
 # https://stackoverflow.com/questions/45799474/keras-model-evaluate-vs-model-predict-accuracy-difference-in-multi-class-nlp-ta
@@ -73,28 +98,60 @@ model.add(Activation('sigmoid'))
 # accuracy = ist das berechnete Ergebnis richtig? --> Epoch: correct guesses / total amount of guesses
 print('compiling model....')
 model.compile(
-    loss='binary_crossentropy',
-    optimizer='adadelta', # 'rmsprop',
+    loss='categorical_crossentropy', # 'binary_crossentropy',
+    optimizer='adadelta',
     metrics=['accuracy']) 
 print('model compiled!!')
 
 print('starting training....')
 training = model.fit_generator(
-    generator = train_generator,
     # epoch = full pass on entire dataset
     # steps per epoch = number of batches in one epoch
     # batch size = number of samples to work through before the model’s internal parameters 
     # are updated (using stochastic gradient decent)
-    steps_per_epoch = train_generator.samples // train_generator.batch_size,
     epochs = 100,
-    # validation_data = validation_generator,
-    # validation_steps = validation_generator.samples // train_generator.batch_size,
+    generator = train_generator,
+    steps_per_epoch = train_generator.samples // train_generator.batch_size,
+    validation_data = validation_generator,
+    validation_steps = validation_generator.samples // validation_generator.batch_size,
 )
 history = training.history
 print('training finished!!')
 
- 
-
 lib.save(model, history)
 lib.plot_history(history)
 
+
+
+
+### predict manually
+
+correct = 0
+checked = 0
+for img in train_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
+
+    print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
+
+    if checked == train_generator.samples:
+        break
+
+print("\n\n")
+correct = 0
+checked = 0
+for img in validation_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
+
+    print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
+
+    if checked == validation_generator.samples:
+        break
+
+
+    
