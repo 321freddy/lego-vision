@@ -91,7 +91,7 @@ namespace TrainDataCreator
                      var area = statsData[i * stats.Cols + 4];
                  */
                 //img.Save(aimDirThis);
-                Bitmap source = resized;
+                Bitmap source = greyscale;
 
                 int componentX = statsData[biggestIndex + 0];
                 int componentY =  statsData[biggestIndex + 1];
@@ -115,34 +115,7 @@ namespace TrainDataCreator
             filePaths = Directory.GetFiles(path);
         }
 
-        /* Langsamerer GreyScale Algorithmus
-        public Bitmap MakeGrayscale(Bitmap original)
-        {
-            
-            //make an empty bitmap the same size as original
-            Bitmap newBitmap = new Bitmap(original.Width, original.Height);
-
-            for (int i = 0; i < original.Width; i++)
-            {
-                for (int j = 0; j < original.Height; j++)
-                {
-                    //get the pixel from the original image
-                    Color originalColor = original.GetPixel(i, j);
-
-                    //create the grayscale version of the pixel
-                    int grayScale = (int)((originalColor.R * .3) + (originalColor.G * .59) //TODO: QUellen für diese Zahelen
-                        + (originalColor.B * .11));
-
-                    //create the color object
-                    Color newColor = Color.FromArgb(grayScale, grayScale, grayScale);
-
-                    //set the new image's pixel to the grayscale version
-                    newBitmap.SetPixel(i, j, newColor);
-                }
-            }
-
-            return newBitmap;
-        }*/
+       
         public static Bitmap MakeGrayscale3(Bitmap original)
         {
             //create a blank bitmap the same size as original
@@ -221,7 +194,6 @@ namespace TrainDataCreator
 
             Bitmap blackedBMP = new Bitmap(source.Width, source.Height, blacked);
 
-            blackedBMP.Save("C: \\Users\\smith\\Documents\\GitHub\\lego - vision\\TrainDataCreator\\Fotos\\1x4 flat\\results\\test,png", ImageFormat.Png);
 
             Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
             Bitmap cropedImage = CropImage(blackedBMP, section);
