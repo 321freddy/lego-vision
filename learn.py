@@ -12,7 +12,7 @@ from lib import *
 
 # step 1: load data
 
-datagen = ImageDataGenerator(
+train_datagen = ImageDataGenerator(
                 validation_split=0.2,
                 
                 samplewise_center=True,
@@ -21,27 +21,35 @@ datagen = ImageDataGenerator(
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                width_shift_range=0.2,
-                height_shift_range=0.2,
+                width_shift_range=0.1,
+                height_shift_range=0.1,
+                zoom_range=0.1,
                 rotation_range=90,)
 
-train_generator = datagen.flow_from_directory(
+validation_datagen = ImageDataGenerator(
+                validation_split=0.2,
+                
+                samplewise_center=True,
+                samplewise_std_normalization=True,
+                zca_whitening=True,)
+
+train_generator = train_datagen.flow_from_directory(
                 directory     = train_dir,
                 target_size   = (img_height, img_width),
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir   = f"{train_dir}_converted",
+                save_to_dir   = f"{train_dir}_traingen",
                 batch_size    = 1,
                 subset        = "training",)
 
-validation_generator = datagen.flow_from_directory(
+validation_generator = validation_datagen.flow_from_directory(
                 directory     = train_dir,
                 target_size   = (img_height, img_width),
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir   = f"{train_dir}_converted_2",
+                save_to_dir   = f"{train_dir}_validationgen",
                 batch_size    = 1,
                 subset        = "validation",)
 
