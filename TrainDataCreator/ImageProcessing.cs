@@ -185,18 +185,17 @@ namespace TrainDataCreator
                 outsideRectangle1 = new Rectangle(newX, y , (newWidth - width) / 2,height);
                 outsideRectangle2 = new Rectangle(x + width, y , (newWidth - width) / 2, height);
             }
+            
+            SolidBrush blackBrush = new SolidBrush(Color.Black);
+
 
             Graphics blacked = Graphics.FromImage(source);
-            blacked.FillRectangle(Brushes.Black, outsideRectangle1);
-            blacked.FillRectangle(Brushes.Black, outsideRectangle2);
-
+            blacked.FillRectangle(blackBrush, outsideRectangle1);
+            blacked.FillRectangle(blackBrush, outsideRectangle2);
            
-
-            Bitmap blackedBMP = new Bitmap(source.Width, source.Height, blacked);
-
-
+           
             Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
-            Bitmap cropedImage = CropImage(blackedBMP, section);
+            Bitmap cropedImage = CropImage(source, section);
 
             return cropedImage;
         }
