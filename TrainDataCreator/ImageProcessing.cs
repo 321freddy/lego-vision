@@ -47,14 +47,18 @@ namespace TrainDataCreator
             for (int i = 0; i < filePaths.Length; i++)
             {
                 string aimDirThis = aimDir + "/res" + i + ".png";
+                string aimDirThisPre = aimDir + "/respre" + i + ".png";
+
                 Image original = Image.FromFile((filePaths[i]));
                 Bitmap resized = new Bitmap(original, new Size(aimWidth, aimHeight));
 
                 Bitmap greyscale = MakeGrayscale3(resized);
-                //greyscale.Save(aimDir + "/res" + i + ".png", ImageFormat.Png);
+                MemoryStream outStream = new MemoryStream();
                 imageProcessor.Load(greyscale);
                 imageProcessor.DetectEdges(filter, false);
                 imageProcessor.Save(aimDirThis);
+                imageProcessor.Save(outStream);
+
 
                 //Als nächstes eine Binärisierung mit Threshhold auf dem Kanten Bild
                 //Dann alles im greyscale Bild nur Pixel behalten, die im Binär = 1
@@ -90,25 +94,37 @@ namespace TrainDataCreator
                      var height = statsData[i * stats.Cols + 3];
                      var area = statsData[i * stats.Cols + 4];
                  */
-                //img.Save(aimDirThis);
-                Bitmap source = greyscale;
+
+                //Bitmap source = greyscale;
+                Bitmap edges = new Bitmap(outStream);
 
                 int componentX = statsData[biggestIndex + 0];
                 int componentY =  statsData[biggestIndex + 1];
                 int componentWidth = statsData[biggestIndex + 2];
                 int componentHeight = statsData[biggestIndex + 3];
 
-                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, source);
-                
+                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, edges);
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
+
+                edges = null;
+
+                CroppedImage = null;
+
+                img = null;
+
+
 
 
 
             }
 
 
+
+
             return true;
         }
+
+        
 
         public void collectImmages(string path)
         {
@@ -192,12 +208,13 @@ namespace TrainDataCreator
             Graphics blacked = Graphics.FromImage(source);
             blacked.FillRectangle(blackBrush, outsideRectangle1);
             blacked.FillRectangle(blackBrush, outsideRectangle2);
+            
            
            
             Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
-            Bitmap cropedImage = CropImage(source, section);
+            Bitmap croppedImage = CropImage(source, section);
 
-            return cropedImage;
+            return croppedImage;
         }
 
     }
