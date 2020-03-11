@@ -103,7 +103,7 @@ namespace TrainDataCreator
                 int componentWidth = statsData[biggestIndex + 2];
                 int componentHeight = statsData[biggestIndex + 3];
 
-                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, edges);
+                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, greyscale);
                 CroppedImage.Save(aimDirThis, ImageFormat.Png);
 
                 edges = null;
@@ -204,11 +204,11 @@ namespace TrainDataCreator
             
             SolidBrush blackBrush = new SolidBrush(Color.Black);
 
-
+            /*
             Graphics blacked = Graphics.FromImage(source);
             blacked.FillRectangle(blackBrush, outsideRectangle1);
             blacked.FillRectangle(blackBrush, outsideRectangle2);
-            
+            */
            
            
             Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
@@ -217,7 +217,9 @@ namespace TrainDataCreator
             return croppedImage;
         }
 
+
     }
+
 
 
 }
