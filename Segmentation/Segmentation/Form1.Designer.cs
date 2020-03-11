@@ -46,6 +46,7 @@
             this.start.TabIndex = 26;
             this.start.Text = "Start";
             this.start.UseVisualStyleBackColor = true;
+            this.start.Click += new System.EventHandler(this.start_Click);
             // 
             // pictureBoxAfterwards
             // 
