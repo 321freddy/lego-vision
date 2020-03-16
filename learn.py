@@ -1,8 +1,9 @@
-from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D
-from keras.layers import Dense, Activation, Dropout, Flatten
-from keras import optimizers
-from keras.models import Sequential
-from keras.preprocessing.image import ImageDataGenerator, image
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D
+from tensorflow.python.keras.layers import Dense, Activation, Dropout, Flatten
+from tensorflow.python.keras import optimizers
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.preprocessing.image import ImageDataGenerator, image
+from tensorflow.python.keras.callbacks import ModelCheckpoint,EarlyStopping,TensorBoard,CSVLogger,ReduceLROnPlateau,LearningRateScheduler
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -31,10 +32,10 @@ train_datagen = ImageDataGenerator(
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                # fill_mode="constant",
-                # cval=0,
-                # width_shift_range=0.1,
-                # height_shift_range=0.1,
+                fill_mode="constant",
+                cval=0,
+                width_shift_range=0.1,
+                height_shift_range=0.1,
                 zoom_range=[1.0,1.2],
                 rotation_range=90,
                 # preprocessing_function=removeTransparent,
@@ -122,21 +123,65 @@ model.add(Dense(len(classes), activation='softmax'))
 print('compiling model....')
 model.compile(
     loss='categorical_crossentropy', # 'binary_crossentropy',
-    optimizer='adadelta',
+    optimizer='adam', #'adadelta',
     metrics=['accuracy']) 
 print('model compiled!!')
 
+#-------Callbacks-------------#
+# best_model_weights = './base.model'
+# checkpoint = ModelCheckpoint(
+#     best_model_weights,
+#     monitor='val_loss',
+#     verbose=1,
+#     save_best_only=True,
+#     mode='min',
+#     save_weights_only=False,
+#     period=1
+# )
+earlystop = EarlyStopping(
+    monitor='val_loss',
+    min_delta=0.001,
+    patience=10,
+    verbose=1,
+    mode='auto'
+)
+tensorboard = TensorBoard(
+    log_dir = f'{dataset_dir}\\logs',
+    histogram_freq=1,
+    write_graph=True,
+    write_images=True,
+)
+csvlogger = CSVLogger(
+    filename= f'{dataset_dir}\\training_csv.log',
+    separator = ",",
+    append = False
+)
+# lrsched = LearningRateScheduler(
+#     step_decay,verbose=1
+# )
+reduce = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=40,
+    verbose=1, 
+    mode='auto',
+    cooldown=1 
+)
+
+callbacks = [tensorboard,csvlogger,reduce]
+
 print('starting training....')
-training = model.fit_generator(
+training = model.fit(
     # epoch = full pass on entire dataset
     # steps per epoch = number of batches in one epoch
     # batch size = number of samples to work through before the model’s internal parameters 
     # are updated (using stochastic gradient decent)
-    epochs = 100,
-    generator = train_generator,
+    epochs = 20,
+    x = train_generator,
     steps_per_epoch = train_generator.samples // train_generator.batch_size,
     validation_data = validation_generator,
     validation_steps = validation_generator.samples // validation_generator.batch_size,
+    callbacks = callbacks,
 )
 history = training.history
 print('training finished!!')
@@ -149,32 +194,32 @@ lib.plot_history(history)
 
 ### predict manually
 
-correct = 0
-checked = 0
-for img in train_generator:
-    checked += 1
-    predict_classes = model.predict_classes(img[0])
-    if predict_classes[0] == np.argmax(img[1]):
-        correct += 1
+# correct = 0
+# checked = 0
+# for img in train_generator:
+#     checked += 1
+#     predict_classes = model.predict_classes(img[0])
+#     if predict_classes[0] == np.argmax(img[1]):
+#         correct += 1
 
-    print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
+#     print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
 
-    if checked == train_generator.samples:
-        break
+#     if checked == train_generator.samples:
+#         break
 
-print("\n\n")
-correct = 0
-checked = 0
-for img in validation_generator:
-    checked += 1
-    predict_classes = model.predict_classes(img[0])
-    if predict_classes[0] == np.argmax(img[1]):
-        correct += 1
+# print("\n\n")
+# correct = 0
+# checked = 0
+# for img in validation_generator:
+#     checked += 1
+#     predict_classes = model.predict_classes(img[0])
+#     if predict_classes[0] == np.argmax(img[1]):
+#         correct += 1
 
-    print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
+#     print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
 
-    if checked == validation_generator.samples:
-        break
+#     if checked == validation_generator.samples:
+#         break
 
 
     
