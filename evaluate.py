@@ -7,7 +7,7 @@ import lib
 from lib import *
 
 model,history = lib.load()
-# lib.plot_history(history)
+lib.plot_history(history)
 
 datagen = ImageDataGenerator(
                 samplewise_center=True,

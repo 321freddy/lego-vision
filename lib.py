@@ -2,6 +2,7 @@ from keras.models import load_model
 import keras
 import tensorflow as tf
 
+import os
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -11,8 +12,7 @@ import pickle
 img_width = 200
 img_height = 200
 
-dataset_name = 'lego_cropped_grayscale'
-classes = ['1x4 flat','2x10 flat']
+dataset_name = 'LEGO brick images v1' # 'lego_cropped_grayscale'
 
 # Paths
 dataset_dir  = f'datasets/{dataset_name}'
@@ -21,7 +21,8 @@ model_path      = f'{dataset_dir}/model.h5'
 history_path = f'{dataset_dir}/history.pickle'
 session_path = f'{dataset_dir}/session.ckpt'
 
-
+classes = [f.name for f in os.scandir(train_dir) if f.is_dir()] # ['1x4 flat','2x10 flat']
+# print(classes)
 
 def save(model, history=None):
     print('saving....')

@@ -12,14 +12,14 @@ from lib import *
 
 # step 1: load data
 
-def removeTransparent(img):
-    img = np.array(img)
+# def removeTransparent(img):
+#     img = np.array(img)
 
-    # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
-    mask = (img<5)
-    img[mask] = 180 # gray
-    # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
-    return img
+#     # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
+#     mask = (img<5)
+#     img[mask] = 180 # gray
+#     # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
+#     return img
 
 train_datagen = ImageDataGenerator(
                 validation_split=0.3,
@@ -37,16 +37,18 @@ train_datagen = ImageDataGenerator(
                 # height_shift_range=0.1,
                 zoom_range=[1.0,1.2],
                 rotation_range=90,
-                preprocessing_function=removeTransparent,)
+                # preprocessing_function=removeTransparent,
+                )
 
 validation_datagen = ImageDataGenerator(
-                validation_split=0.3,
+                validation_split=0.2,
                 
                 # samplewise_center=True,
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
                 rescale=1./255,
-                preprocessing_function=removeTransparent,)
+                # preprocessing_function=removeTransparent,
+                )
 
 train_generator = train_datagen.flow_from_directory(
                 directory     = train_dir,
@@ -55,7 +57,7 @@ train_generator = train_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 # save_to_dir   = f'{dataset_dir}/train_generated',
-                batch_size    = 1,
+                batch_size    = 16,
                 subset        = "training",)
 
 validation_generator = validation_datagen.flow_from_directory(
@@ -65,7 +67,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 # save_to_dir   = f'{dataset_dir}/validation_generated',
-                batch_size    = 1,
+                batch_size    = 16,
                 subset        = "validation",)
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
