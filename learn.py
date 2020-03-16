@@ -65,25 +65,20 @@ print(f'Validation generator samples: {validation_generator.samples}  batch size
 print('creating model....')
 model = Sequential()
 
-model.add(Conv2D(32,(3,3), input_shape=(img_width, img_height, 1)))
-model.add(Activation('relu'))
+model.add(Conv2D(32,(3,3), activation='relu', input_shape=(img_width, img_height, 1)))
 model.add(MaxPooling2D(pool_size=(2,2)))
 
-model.add(Conv2D(32,(3,3)))
-model.add(Activation('relu'))
+model.add(Conv2D(32,(3,3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 
-model.add(Conv2D(64,(3,3)))
-model.add(Activation('relu'))
+model.add(Conv2D(64,(3,3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 
 model.add(Flatten())
-model.add(Dense(64))
-model.add(Activation('relu'))
+model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(len(classes)))
+model.add(Dense(len(classes), activation='softmax'))
 # model.add(Activation('sigmoid'))
-model.add(Activation('softmax'))
 
 # TODO:
 # https://stackoverflow.com/questions/45799474/keras-model-evaluate-vs-model-predict-accuracy-difference-in-multi-class-nlp-ta
