@@ -12,30 +12,41 @@ from lib import *
 
 # step 1: load data
 
+def removeTransparent(img):
+    img = np.array(img)
+
+    # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
+    mask = (img<5)
+    img[mask] = 180 # gray
+    # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
+    return img
+
 train_datagen = ImageDataGenerator(
                 validation_split=0.3,
                 
-                samplewise_center=True, # FIXME: prepare std zca
-                samplewise_std_normalization=True,
-                zca_whitening=True,
+                # samplewise_center=True, # FIXME: prepare std zca
+                # samplewise_std_normalization=True,
+                # zca_whitening=True,
                 rescale=1./255,
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                fill_mode="constant",
-                cval=0,
-                width_shift_range=0.1,
-                height_shift_range=0.1,
+                # fill_mode="constant",
+                # cval=0,
+                # width_shift_range=0.1,
+                # height_shift_range=0.1,
                 zoom_range=[1.0,1.2],
-                rotation_range=90,)
+                rotation_range=90,
+                preprocessing_function=removeTransparent,)
 
 validation_datagen = ImageDataGenerator(
                 validation_split=0.3,
                 
-                samplewise_center=True,
-                samplewise_std_normalization=True,
-                zca_whitening=True,
-                rescale=1./255,)
+                # samplewise_center=True,
+                # samplewise_std_normalization=True,
+                # zca_whitening=True,
+                rescale=1./255,
+                preprocessing_function=removeTransparent,)
 
 train_generator = train_datagen.flow_from_directory(
                 directory     = train_dir,
@@ -59,6 +70,17 @@ validation_generator = validation_datagen.flow_from_directory(
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
 print(f'Validation generator samples: {validation_generator.samples}  batch size: {validation_generator.batch_size}  dir: {train_dir}')
+
+# cnt = 0
+# for img in train_generator:
+#     cnt += 1
+#     if cnt >= train_generator.samples:
+#         break
+# cnt = 0
+# for img in validation_generator:
+#     cnt += 1
+#     if cnt >= validation_generator.samples:
+#         break
 
 # step-2 : build model
 

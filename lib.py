@@ -11,7 +11,7 @@ import pickle
 img_width = 200
 img_height = 200
 
-dataset_name = 'lego_cropped_edgedetect'
+dataset_name = 'lego_cropped_grayscale'
 classes = ['1x4 flat','2x10 flat']
 
 # Paths
