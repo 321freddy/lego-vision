@@ -12,7 +12,7 @@ import pickle
 img_width = 200
 img_height = 200
 
-dataset_name = 'LEGO brick images v1' # 'lego_cropped_grayscale'
+dataset_name = 'lego_cropped_grayscale'
 
 # Paths
 dataset_dir  = f'datasets\\{dataset_name}'

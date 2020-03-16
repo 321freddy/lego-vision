@@ -1,9 +1,9 @@
-from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D
-from tensorflow.python.keras.layers import Dense, Activation, Dropout, Flatten
-from tensorflow.python.keras import optimizers
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.preprocessing.image import ImageDataGenerator, image
-from tensorflow.python.keras.callbacks import ModelCheckpoint,EarlyStopping,TensorBoard,CSVLogger,ReduceLROnPlateau,LearningRateScheduler
+from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, Lambda, SeparableConv2D, BatchNormalization
+from keras.layers import Dense, Activation, Dropout, Flatten, AlphaDropout
+from keras import optimizers
+from keras.models import Sequential
+from keras.preprocessing.image import ImageDataGenerator, image
+from keras.callbacks import ModelCheckpoint,EarlyStopping,TensorBoard,CSVLogger,ReduceLROnPlateau,LearningRateScheduler
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -13,17 +13,18 @@ from lib import *
 
 # step 1: load data
 
-# def removeTransparent(img):
-#     img = np.array(img)
+def removeTransparent(img):
+    img = np.array(img)
 
-#     # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
-#     mask = (img<5)
-#     img[mask] = 180 # gray
-#     # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
-#     return img
+    # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
+    mask = (img<5)
+    img[mask] = 180 # gray
+    # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
+    return img
 
+split = 0.3
 train_datagen = ImageDataGenerator(
-                validation_split=0.3,
+                validation_split=split,
                 
                 # samplewise_center=True, # FIXME: prepare std zca
                 # samplewise_std_normalization=True,
@@ -32,23 +33,23 @@ train_datagen = ImageDataGenerator(
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                fill_mode="constant",
-                cval=0,
-                width_shift_range=0.1,
-                height_shift_range=0.1,
+                # fill_mode="constant",
+                # cval=0,
+                # width_shift_range=0.1,
+                # height_shift_range=0.1,
                 zoom_range=[1.0,1.2],
                 rotation_range=90,
-                # preprocessing_function=removeTransparent,
+                preprocessing_function=removeTransparent,
                 )
 
 validation_datagen = ImageDataGenerator(
-                validation_split=0.2,
+                validation_split=split,
                 
                 # samplewise_center=True,
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
                 rescale=1./255,
-                # preprocessing_function=removeTransparent,
+                preprocessing_function=removeTransparent,
                 )
 
 train_generator = train_datagen.flow_from_directory(
@@ -58,7 +59,7 @@ train_generator = train_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 # save_to_dir   = f'{dataset_dir}/train_generated',
-                batch_size    = 16,
+                batch_size    = 1,
                 subset        = "training",)
 
 validation_generator = validation_datagen.flow_from_directory(
@@ -68,7 +69,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 # save_to_dir   = f'{dataset_dir}/validation_generated',
-                batch_size    = 16,
+                batch_size    = 1,
                 subset        = "validation",)
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
@@ -90,19 +91,26 @@ print(f'Validation generator samples: {validation_generator.samples}  batch size
 print('creating model....')
 model = Sequential()
 
-model.add(Conv2D(32,(3,3), activation='relu', input_shape=(img_width, img_height, 1)))
-model.add(MaxPooling2D(pool_size=(2,2)))
+def ConvBlock(model, layers, filters):
+    for i in range(layers):
+        # model.add(Conv2D(filters, (3,3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
+        model.add(Conv2D(filters, (3,3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
+        model.add(SeparableConv2D(filters, (3, 3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
+        # model.add(SeparableConv2D(filters, (3, 3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
+        model.add(BatchNormalization())
+        model.add(MaxPooling2D((2, 2)))
 
-model.add(Conv2D(32,(3,3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2)))
 
-model.add(Conv2D(64,(3,3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Lambda(lambda x: x, input_shape=(img_width, img_height, 1)))
+ConvBlock(model, 1, 32)
+ConvBlock(model, 1, 64)
+ConvBlock(model, 1, 128)
+ConvBlock(model, 1, 256)
 
 model.add(Flatten())
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(len(classes), activation='softmax'))
+model.add(Dense(1024, activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
+model.add(AlphaDropout(0.5))
+model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_normal', bias_initializer='zeros'))
 # model.add(Activation('sigmoid'))
 
 # TODO:
@@ -123,7 +131,7 @@ model.add(Dense(len(classes), activation='softmax'))
 print('compiling model....')
 model.compile(
     loss='categorical_crossentropy', # 'binary_crossentropy',
-    optimizer='adam', #'adadelta',
+    optimizer=keras.optimizers.rmsprop(lr=0.00005, decay=1e-6), # 'adadelta',
     metrics=['accuracy']) 
 print('model compiled!!')
 
@@ -138,46 +146,46 @@ print('model compiled!!')
 #     save_weights_only=False,
 #     period=1
 # )
-earlystop = EarlyStopping(
-    monitor='val_loss',
-    min_delta=0.001,
-    patience=10,
-    verbose=1,
-    mode='auto'
-)
-tensorboard = TensorBoard(
-    log_dir = f'{dataset_dir}\\logs',
-    histogram_freq=1,
-    write_graph=True,
-    write_images=True,
-)
-csvlogger = CSVLogger(
-    filename= f'{dataset_dir}\\training_csv.log',
-    separator = ",",
-    append = False
-)
-# lrsched = LearningRateScheduler(
-#     step_decay,verbose=1
+# earlystop = EarlyStopping(
+#     monitor='val_loss',
+#     min_delta=0.001,
+#     patience=10,
+#     verbose=1,
+#     mode='auto'
 # )
+# tensorboard = TensorBoard(
+#     log_dir = f'{dataset_dir}\\logs',
+#     histogram_freq=1,
+#     write_graph=True,
+#     write_images=True,
+# )
+# csvlogger = CSVLogger(
+#     filename= f'{dataset_dir}\\training_csv.log',
+#     separator = ",",
+#     append = False
+# )
+# # lrsched = LearningRateScheduler(
+# #     step_decay,verbose=1
+# # )
 reduce = ReduceLROnPlateau(
     monitor='val_loss',
-    factor=0.5,
-    patience=40,
+    factor=0.3,
+    patience=10,
     verbose=1, 
     mode='auto',
-    cooldown=1 
+    # cooldown=1 
 )
 
-callbacks = [tensorboard,csvlogger,reduce]
+callbacks = [reduce]
 
 print('starting training....')
-training = model.fit(
+training = model.fit_generator(
     # epoch = full pass on entire dataset
     # steps per epoch = number of batches in one epoch
     # batch size = number of samples to work through before the model’s internal parameters 
     # are updated (using stochastic gradient decent)
-    epochs = 20,
-    x = train_generator,
+    epochs = 50,
+    generator = train_generator,
     steps_per_epoch = train_generator.samples // train_generator.batch_size,
     validation_data = validation_generator,
     validation_steps = validation_generator.samples // validation_generator.batch_size,
@@ -194,32 +202,32 @@ lib.plot_history(history)
 
 ### predict manually
 
-# correct = 0
-# checked = 0
-# for img in train_generator:
-#     checked += 1
-#     predict_classes = model.predict_classes(img[0])
-#     if predict_classes[0] == np.argmax(img[1]):
-#         correct += 1
+correct = 0
+checked = 0
+for img in train_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
 
-#     print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
+    print(f"TRAIN checked={checked}  correct={correct}  accuracy={correct/checked}")
 
-#     if checked == train_generator.samples:
-#         break
+    if checked == train_generator.samples:
+        break
 
-# print("\n\n")
-# correct = 0
-# checked = 0
-# for img in validation_generator:
-#     checked += 1
-#     predict_classes = model.predict_classes(img[0])
-#     if predict_classes[0] == np.argmax(img[1]):
-#         correct += 1
+print("\n\n")
+correct = 0
+checked = 0
+for img in validation_generator:
+    checked += 1
+    predict_classes = model.predict_classes(img[0])
+    if predict_classes[0] == np.argmax(img[1]):
+        correct += 1
 
-#     print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
+    print(f"VALIDATION checked={checked}  correct={correct}  accuracy={correct/checked}")
 
-#     if checked == validation_generator.samples:
-#         break
+    if checked == validation_generator.samples:
+        break
 
 
     
