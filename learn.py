@@ -77,6 +77,7 @@ train_generator = train_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 save_to_dir   = f'{dataset_dir}/train_generated' if only_generate_images else None,
+                shuffle       = not only_generate_images,
                 batch_size    = 1,
                 subset        = "training",)
 
@@ -87,6 +88,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 save_to_dir   = f'{dataset_dir}/validation_generated' if only_generate_images else None,
+                shuffle       = False,
                 batch_size    = 1,
                 subset        = "validation",)
 
@@ -110,7 +112,7 @@ def ConvBlock(model, layers, filters):
         model.add(Conv2D(filters, (3,3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
         model.add(SeparableConv2D(filters, (3, 3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
         # model.add(SeparableConv2D(filters, (3, 3), activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
-        model.add(BatchNormalization())
+        # model.add(BatchNormalization())
         model.add(MaxPooling2D((2, 2)))
 
 
@@ -139,12 +141,16 @@ model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_no
 # https://stackoverflow.com/questions/42081257/why-binary-crossentropy-and-categorical-crossentropy-give-different-performances/46038271#46038271
 
 
+# TODO: https://ladvien.com/lego-deep-learning-classifier-cnn/
+# Hyperparameter finden
+# https://medium.com/octavian-ai/which-optimizer-and-learning-rate-should-i-use-for-deep-learning-5acb418f9b2
+
 # loss = mean squared error vom berechneten Ergebnis zum erwarteten Ergebnis
 # accuracy = ist das berechnete Ergebnis richtig? --> Epoch: correct guesses / total amount of guesses
 print('compiling model....')
 model.compile(
     loss='categorical_crossentropy', # 'binary_crossentropy',
-    optimizer=keras.optimizers.rmsprop(lr=0.00005, decay=1e-6), # 'adadelta',
+    optimizer=keras.optimizers.rmsprop(lr=0.0001), # 'adadelta',
     metrics=['accuracy']) 
 print('model compiled!!')
 
@@ -179,16 +185,16 @@ checkpoint = ModelCheckpoint(
 # # lrsched = LearningRateScheduler(
 # #     step_decay,verbose=1
 # # )
-reduce = ReduceLROnPlateau(
-    monitor='val_loss',
-    factor=0.3,
-    patience=10,
-    verbose=1, 
-    mode='auto',
-    # cooldown=1 
-)
+# reduce = ReduceLROnPlateau(
+#     monitor='val_loss',
+#     factor=0.3,
+#     patience=10,
+#     verbose=1, 
+#     mode='auto',
+#     # cooldown=1 
+# )
 
-callbacks = [reduce]
+callbacks = [checkpoint]
 
 print('starting training....')
 training = model.fit_generator(
