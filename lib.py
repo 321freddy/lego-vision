@@ -72,3 +72,15 @@ def plot_history(history):
     plt.legend(['Train', 'Validation'], loc='best')
 
     plt.show()
+
+
+def generateImages(generator, path):
+    from shutil import rmtree
+    rmtree(path, ignore_errors=True)
+    os.mkdir(path)
+
+    cnt = 0
+    for img in generator:
+        cnt += 1
+        if cnt >= generator.samples:
+            break

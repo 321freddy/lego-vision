@@ -23,6 +23,7 @@ def removeTransparent(img):
     return img
 
 split = 0.3
+onlyGenerateImages = False
 train_datagen = ImageDataGenerator(
                 validation_split=split,
                 
@@ -58,7 +59,8 @@ train_generator = train_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir   = f'{dataset_dir}/train_generated',
+                save_to_dir   = f'{dataset_dir}/train_generated' if onlyGenerateImages else None,
+                shuffle       = not onlyGenerateImages,
                 batch_size    = 1,
                 subset        = "training",)
 
@@ -68,23 +70,19 @@ validation_generator = validation_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                # save_to_dir   = f'{dataset_dir}/validation_generated',
+                save_to_dir   = f'{dataset_dir}/validation_generated' if onlyGenerateImages else None,
+                shuffle       = not onlyGenerateImages,
                 batch_size    = 1,
                 subset        = "validation",)
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
 print(f'Validation generator samples: {validation_generator.samples}  batch size: {validation_generator.batch_size}  dir: {train_dir}')
 
-# cnt = 0
-# for img in train_generator:
-#     cnt += 1
-#     if cnt >= train_generator.samples:
-#         break
-# cnt = 0
-# for img in validation_generator:
-#     cnt += 1
-#     if cnt >= validation_generator.samples:
-#         break
+
+if onlyGenerateImages:
+    lib.generateImages(train_generator, f'{dataset_dir}/train_generated')
+    lib.generateImages(validation_generator, f'{dataset_dir}/validation_generated')
+    quit()
 
 # step-2 : build model
 
