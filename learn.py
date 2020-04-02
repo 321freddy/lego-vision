@@ -37,7 +37,8 @@ def removeBackground(img):
 
 
 split = 0.3
-onlyGenerateImages = False
+only_generate_images = False
+
 train_datagen = ImageDataGenerator(
                 validation_split=split,
                 
@@ -75,8 +76,7 @@ train_generator = train_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                save_to_dir   = f'{dataset_dir}/train_generated' if onlyGenerateImages else None,
-                shuffle       = not onlyGenerateImages,
+                save_to_dir   = f'{dataset_dir}/train_generated' if only_generate_images else None,
                 batch_size    = 1,
                 subset        = "training",)
 
@@ -86,8 +86,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 classes       = classes,
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
-                save_to_dir   = f'{dataset_dir}/validation_generated' if onlyGenerateImages else None,
-                shuffle       = not onlyGenerateImages,
+                save_to_dir   = f'{dataset_dir}/validation_generated' if only_generate_images else None,
                 batch_size    = 1,
                 subset        = "validation",)
 
@@ -95,7 +94,7 @@ print(f'Train generator samples: {train_generator.samples}  batch size: {train_g
 print(f'Validation generator samples: {validation_generator.samples}  batch size: {validation_generator.batch_size}  dir: {train_dir}')
 
 
-if onlyGenerateImages:
+if only_generate_images:
     lib.generateImages(train_generator, f'{dataset_dir}/train_generated')
     lib.generateImages(validation_generator, f'{dataset_dir}/validation_generated')
     quit()
