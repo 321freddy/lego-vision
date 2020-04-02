@@ -6,6 +6,7 @@ from keras.preprocessing.image import ImageDataGenerator, image
 from keras.callbacks import ModelCheckpoint,EarlyStopping,TensorBoard,CSVLogger,ReduceLROnPlateau,LearningRateScheduler
 import math
 import numpy as np 
+import scipy.ndimage
 import matplotlib.pyplot as plt
 import lib
 from lib import *
@@ -13,14 +14,27 @@ from lib import *
 
 # step 1: load data
 
-def removeTransparent(img):
-    img = np.array(img)
+def removeBackground(img):
+    img = np.array(img,dtype=np.uint8)
 
-    # black_pixels_mask = np.all(image == [0, 0, 0], axis=-1)
-    mask = (img<5)
-    img[mask] = 180 # gray
+    # replace black areas with white
+    mask = (img == 0)
+    mask = scipy.ndimage.binary_dilation(mask)
+    img[mask] = 255 # white
     # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
-    return img
+
+    # increase contrast
+    min=np.min(img)
+    max=np.max(img)
+
+    # Make a LUT (Look-Up Table) to translate image values
+    LUT=np.zeros(256,dtype=np.uint8)
+    LUT[min:max+1]=np.linspace(start=0,stop=255,num=(max-min)+1,endpoint=True,dtype=np.uint8)
+    img = LUT[img]
+
+    return np.array(img, dtype=np.float)
+
+
 
 split = 0.3
 onlyGenerateImages = False
@@ -34,13 +48,14 @@ train_datagen = ImageDataGenerator(
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                # fill_mode="constant",
-                # cval=0,
+                fill_mode="constant",
+                cval=0,
                 # width_shift_range=0.1,
                 # height_shift_range=0.1,
+                brightness_range=[1.8,2.0],
                 zoom_range=[1.0,1.2],
                 rotation_range=90,
-                preprocessing_function=removeTransparent,
+                preprocessing_function=removeBackground,
                 )
 
 validation_datagen = ImageDataGenerator(
@@ -49,8 +64,9 @@ validation_datagen = ImageDataGenerator(
                 # samplewise_center=True,
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
+                brightness_range=[2.0,2.0],
                 rescale=1./255,
-                preprocessing_function=removeTransparent,
+                preprocessing_function=removeBackground,
                 )
 
 train_generator = train_datagen.flow_from_directory(
