@@ -15,11 +15,12 @@ img_height = 200
 dataset_name = 'lego_cropped_grayscale'
 
 # Paths
-dataset_dir  = f'datasets\\{dataset_name}'
-train_dir    = f'{dataset_dir}\\train'
+dataset_dir     = f'datasets\\{dataset_name}'
+train_dir       = f'{dataset_dir}\\train'
 model_path      = f'{dataset_dir}\\model.h5'
-history_path = f'{dataset_dir}\\history.pickle'
-session_path = f'{dataset_dir}\\session.ckpt'
+best_model_path = f'{dataset_dir}\\best_model.h5'
+history_path    = f'{dataset_dir}\\history.pickle'
+session_path    = f'{dataset_dir}\\session.ckpt'
 
 classes = [f.name for f in os.scandir(train_dir) if f.is_dir()] # ['1x4 flat','2x10 flat']
 # print(classes)

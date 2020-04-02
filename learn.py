@@ -150,16 +150,15 @@ model.compile(
 print('model compiled!!')
 
 #-------Callbacks-------------#
-# best_model_weights = './base.model'
-# checkpoint = ModelCheckpoint(
-#     best_model_weights,
-#     monitor='val_loss',
-#     verbose=1,
-#     save_best_only=True,
-#     mode='min',
-#     save_weights_only=False,
-#     period=1
-# )
+checkpoint = ModelCheckpoint(
+    filepath=best_model_path,
+    monitor='val_loss',
+    verbose=1,
+    save_best_only=True,
+    mode='min',
+    save_weights_only=False,
+    period=1
+)
 # earlystop = EarlyStopping(
 #     monitor='val_loss',
 #     min_delta=0.001,
