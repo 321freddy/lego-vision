@@ -149,8 +149,8 @@ model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_no
 # accuracy = ist das berechnete Ergebnis richtig? --> Epoch: correct guesses / total amount of guesses
 print('compiling model....')
 model.compile(
-    loss='categorical_crossentropy', # 'binary_crossentropy',
-    optimizer=keras.optimizers.rmsprop(lr=0.0001), # 'adadelta',
+    loss='categorical_crossentropy',
+    optimizer=keras.optimizers.Nadam(lr=0.0001), # Adam(lr=0.00005) # TODO: smaller network
     metrics=['accuracy']) 
 print('model compiled!!')
 
@@ -185,14 +185,14 @@ checkpoint = ModelCheckpoint(
 # # lrsched = LearningRateScheduler(
 # #     step_decay,verbose=1
 # # )
-# reduce = ReduceLROnPlateau(
-#     monitor='val_loss',
-#     factor=0.3,
-#     patience=10,
-#     verbose=1, 
-#     mode='auto',
-#     # cooldown=1 
-# )
+reduce = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=10,
+    verbose=1, 
+    mode='auto',
+    # cooldown=1 
+)
 
 callbacks = [checkpoint]
 
