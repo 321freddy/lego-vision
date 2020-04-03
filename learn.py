@@ -46,11 +46,11 @@ train_datagen = ImageDataGenerator(
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
                 rescale=1./255,
+                fill_mode="constant",
+                cval=0,
                 
                 horizontal_flip=True,
                 vertical_flip=True,
-                fill_mode="constant",
-                cval=0,
                 # width_shift_range=0.1,
                 # height_shift_range=0.1,
                 brightness_range=[1.8,2.0],
@@ -65,8 +65,10 @@ validation_datagen = ImageDataGenerator(
                 # samplewise_center=True,
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
-                brightness_range=[2.0,2.0],
                 rescale=1./255,
+                fill_mode="constant",
+                cval=0,
+                brightness_range=[2.0,2.0],
                 preprocessing_function=removeBackground,
                 )
 
