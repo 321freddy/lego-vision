@@ -12,32 +12,10 @@ import lib
 from lib import *
 
 
-# step 1: load data
-
-def removeBackground(img):
-    img = np.array(img,dtype=np.uint8)
-
-    # replace black areas with white
-    mask = (img == 0)
-    mask = scipy.ndimage.binary_dilation(mask)
-    img[mask] = 255 # white
-    # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
-
-    # increase contrast
-    min=np.min(img)
-    max=np.max(img)
-
-    # Make a LUT (Look-Up Table) to translate image values
-    LUT=np.zeros(256,dtype=np.uint8)
-    LUT[min:max+1]=np.linspace(start=0,stop=255,num=(max-min)+1,endpoint=True,dtype=np.uint8)
-    img = LUT[img]
-
-    return np.array(img, dtype=np.float)
-
-
-
-split = 0.3
+split = 0.2
 only_generate_images = False
+
+# step 1: load data
 
 train_datagen = ImageDataGenerator(
                 validation_split=split,
@@ -46,17 +24,17 @@ train_datagen = ImageDataGenerator(
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
                 rescale=1./255,
-                fill_mode="constant",
-                cval=0,
+                # fill_mode="constant",
+                # cval=0,
                 
                 horizontal_flip=True,
                 vertical_flip=True,
                 # width_shift_range=0.1,
                 # height_shift_range=0.1,
-                brightness_range=[1.8,2.0],
+                # brightness_range=[1.8,2.2],
                 zoom_range=[1.0,1.2],
                 rotation_range=90,
-                preprocessing_function=removeBackground,
+                # preprocessing_function=removeBackground,
                 )
 
 validation_datagen = ImageDataGenerator(
@@ -66,10 +44,10 @@ validation_datagen = ImageDataGenerator(
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
                 rescale=1./255,
-                fill_mode="constant",
-                cval=0,
-                brightness_range=[2.0,2.0],
-                preprocessing_function=removeBackground,
+                # fill_mode="constant",
+                # cval=0,
+                # brightness_range=[2.0,2.0],
+                # preprocessing_function=removeBackground,
                 )
 
 train_generator = train_datagen.flow_from_directory(
@@ -79,7 +57,7 @@ train_generator = train_datagen.flow_from_directory(
                 class_mode    = "categorical", # "binary",
                 color_mode    = "grayscale",
                 save_to_dir   = f'{dataset_dir}/train_generated' if only_generate_images else None,
-                shuffle       = not only_generate_images,
+                shuffle       = True,
                 batch_size    = 1,
                 subset        = "training",)
 
@@ -91,7 +69,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 color_mode    = "grayscale",
                 save_to_dir   = f'{dataset_dir}/validation_generated' if only_generate_images else None,
                 shuffle       = False,
-                batch_size    = 1,
+                batch_size    = 28,
                 subset        = "validation",)
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
@@ -117,18 +95,21 @@ def ConvBlock(model, layers, filters):
         # model.add(BatchNormalization())
         model.add(MaxPooling2D((2, 2)))
 
-
 model.add(Lambda(lambda x: x, input_shape=(img_width, img_height, 1)))
 ConvBlock(model, 1, 32)
 ConvBlock(model, 1, 64)
 ConvBlock(model, 1, 128)
 ConvBlock(model, 1, 256)
+ConvBlock(model, 1, 512)
 
 model.add(Flatten())
 model.add(Dense(1024, activation='selu', kernel_initializer='lecun_normal', bias_initializer='zeros'))
-model.add(AlphaDropout(0.5))
+model.add(AlphaDropout(0.7))
 model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_normal', bias_initializer='zeros'))
 # model.add(Activation('sigmoid'))
+
+
+# TODO: oscillations problemquellen: https://stackoverflow.com/questions/55894132/how-to-correct-unstable-loss-and-accuracy-during-training-binary-classificatio
 
 # TODO:
 # https://stackoverflow.com/questions/45799474/keras-model-evaluate-vs-model-predict-accuracy-difference-in-multi-class-nlp-ta
@@ -152,7 +133,7 @@ model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_no
 print('compiling model....')
 model.compile(
     loss='categorical_crossentropy',
-    optimizer=keras.optimizers.Nadam(lr=0.0001), # Adam(lr=0.00005) # TODO: smaller network
+    optimizer=keras.optimizers.Nadam(lr=0.0001), # Nadam(lr=0.0001), # Adam(lr=0.00005),
     metrics=['accuracy']) 
 print('model compiled!!')
 

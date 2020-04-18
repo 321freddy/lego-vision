@@ -1,4 +1,5 @@
 from keras.models import load_model
+from keras.preprocessing.image import image
 import keras
 import tensorflow as tf
 
@@ -12,18 +13,28 @@ import pickle
 img_width = 200
 img_height = 200
 
-dataset_name = 'lego_cropped_grayscale'
+dataset_name = 'lego_all_new'
 
 # Paths
 dataset_dir     = f'datasets\\{dataset_name}'
+raw_dir         = f'{dataset_dir}\\raw'
+prepare_dir     = f'{dataset_dir}\\prepare'
 train_dir       = f'{dataset_dir}\\train'
 model_path      = f'{dataset_dir}\\model.h5'
 best_model_path = f'{dataset_dir}\\best_model.h5'
 history_path    = f'{dataset_dir}\\history.pickle'
-session_path    = f'{dataset_dir}\\session.ckpt'
 
-classes = [f.name for f in os.scandir(train_dir) if f.is_dir()] # ['1x4 flat','2x10 flat']
-# print(classes)
+classes = []
+if os.path.exists(train_dir):
+    classes = [f.name for f in os.scandir(train_dir) if f.is_dir()]
+if len(classes) == 0 and os.path.exists(prepare_dir):
+    classes = [f.name for f in os.scandir(prepare_dir) if f.is_dir()]
+if len(classes) == 0 and os.path.exists(raw_dir):
+    classes = [f.name for f in os.scandir(raw_dir) if f.is_dir()]
+if len(classes) == 0:
+    raise RuntimeError("No classes found!")
+
+
 
 def save(model, history=None):
     print('saving....')
@@ -75,13 +86,22 @@ def plot_history(history):
     plt.show()
 
 
-def generateImages(generator, path):
+def generateImages(generator, path, preserve_classes=False):
     from shutil import rmtree
     rmtree(path, ignore_errors=True)
     os.mkdir(path)
 
     cnt = 0
     for img in generator:
+        if preserve_classes:
+            classname = classes[int(img[1])]
+            classpath = f'{path}\\{classname}'
+            filepath = f'{classpath}\\res{cnt}.png'
+            if not os.path.exists(classpath):
+                os.mkdir(classpath)
+
+            image.array_to_img(img[0][0], scale=True).save(filepath)
+
         cnt += 1
         if cnt >= generator.samples:
             break
