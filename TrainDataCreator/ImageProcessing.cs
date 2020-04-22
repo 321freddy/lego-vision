@@ -56,13 +56,13 @@ namespace TrainDataCreator
                 MemoryStream outStream = new MemoryStream();
                 imageProcessor.Load(greyscale);
                 imageProcessor.DetectEdges(filter, false);
-                imageProcessor.Save(aimDirThis);
+                imageProcessor.Save(aimDir+"/temp" + "/res" + i + ".png");
                 imageProcessor.Save(outStream);
 
 
                 //Als nächstes eine Binärisierung mit Threshhold auf dem Kanten Bild
                 //Dann alles im greyscale Bild nur Pixel behalten, die im Binär = 1
-                Image<Gray, Byte> img = new Image<Gray, Byte>(aimDirThis);
+                Image<Gray, Byte> img = new Image<Gray, Byte>(aimDir + "/temp" + "/res" + i + ".png");
                 
                 img = img.ThresholdBinary(new Gray(threshold_value), new Gray(255)).Dilate(1).Erode(1);
                 var labels = new Mat();
@@ -103,8 +103,16 @@ namespace TrainDataCreator
                 int componentWidth = statsData[biggestIndex + 2];
                 int componentHeight = statsData[biggestIndex + 3];
 
-                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, greyscale);
-                CroppedImage.Save(aimDirThis, ImageFormat.Png);
+
+
+                Bitmap CroppedColor = cropping(componentX, componentY, componentWidth, componentHeight, resized,true);
+
+                Bitmap CroppedImage = cropping(componentX, componentY, componentWidth, componentHeight, greyscale, false);
+
+                string color = determineColor(CroppedColor);
+
+                CroppedImage.Save(aimDir + "/res" + i +color+ ".png" , ImageFormat.Png);
+                //CroppedColor.Save(aimDir + "/resC" + i + color + ".png", ImageFormat.Png);
 
                 edges = null;
 
@@ -177,7 +185,7 @@ namespace TrainDataCreator
             }
         }
 
-        public Bitmap cropping(int x, int y, int width, int height, Bitmap source)
+        public Bitmap cropping(int x, int y, int width, int height, Bitmap source, bool onlyStone)
         {
             int newY = y;
             int newHeight = height;
@@ -209,12 +217,107 @@ namespace TrainDataCreator
             blacked.FillRectangle(blackBrush, outsideRectangle1);
             blacked.FillRectangle(blackBrush, outsideRectangle2);
             */
-           
-           
-            Rectangle section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
+
+
+            Rectangle section;
+            if(onlyStone == true)
+            {
+                section = new Rectangle(x, y, width, height);
+            }
+            else
+            {
+                section = new Rectangle(new Point(newX, newY), new Size(newWidth, newHeight));
+
+            }
             Bitmap croppedImage = CropImage(source, section);
 
             return croppedImage;
+        }
+
+        public string determineColor(Bitmap original)
+        {
+            string color = "";
+
+            float sum = 0;
+            float count = 0;
+            for(int i = 0; i < original.Height; i++)
+            {
+                for(int  j = 0; j < original.Width; j++)
+                {
+                    float hue  =  original.GetPixel(j, i).GetHue();
+                    float saturation =  original.GetPixel(j, i).GetSaturation();
+                    float lightness =  original.GetPixel(j, i).GetBrightness();
+
+                    if(saturation > 0.5) {
+                        if(lightness > 0.15)
+                        {
+                            if(lightness < 0.95)
+                            {
+                                //Not grey, white, black or background
+                                if(hue > 340)
+                                {
+                                    hue = 0; //To catch the reds on the other end of the spectrum
+                                }
+                                sum = sum + hue;
+                                count = count +1;
+                            }
+                            else
+                            {
+                                //white or Background
+                            }
+                        }
+                        else
+                        {
+                            //Black or Background
+                        }
+                    }
+                    else
+                    {
+                        //Grey or Background
+                    }
+                }
+            }
+
+            float average = sum / count;
+
+            if(average < 15) //Red
+            {
+                color = "Red";
+            }else if(15 <= average && average < 30) //Orange
+            {
+                color = "Orange";
+
+            }
+            else if (30 <= average && average < 65) //Yellow
+            {
+                color = "Yellow";
+
+            }
+            else if (65 <= average && average < 150) //Green
+            {
+                color = "Green";
+
+            }
+            else if (150 <= average && average < 170) //Turquois
+            {
+                color = "Turquois";
+
+            }
+            else if (170 <= average && average < 260) //Blue
+            {
+                color = "Blue";
+
+            }
+            else if (260 <= average && average < 340) //purple
+            {
+                color = "Purple";
+
+            }
+
+            return color;
+
+
+
         }
 
 
