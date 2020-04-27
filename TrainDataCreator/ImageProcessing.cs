@@ -240,6 +240,8 @@ namespace TrainDataCreator
 
             float sum = 0;
             float count = 0;
+            float whitecount = 0;
+            float blackcount = 0;
             for(int i = 0; i < original.Height; i++)
             {
                 for(int  j = 0; j < original.Width; j++)
@@ -263,11 +265,13 @@ namespace TrainDataCreator
                             }
                             else
                             {
+                                whitecount++;
                                 //white or Background
                             }
                         }
                         else
                         {
+                            blackcount++;
                             //Black or Background
                         }
                     }
@@ -277,43 +281,61 @@ namespace TrainDataCreator
                     }
                 }
             }
-
-            float average = sum / count;
-
-            if(average < 15) //Red
+            if(count < whitecount || count < blackcount || count < 5000)
             {
-                color = "Red";
-            }else if(15 <= average && average < 30) //Orange
-            {
-                color = "Orange";
-
+                if(whitecount < blackcount)
+                {
+                    color = "black";
+                }
+                else
+                {
+                    color = "white";
+                }
             }
-            else if (30 <= average && average < 65) //Yellow
+            else
             {
-                color = "Yellow";
+                float average = sum / count;
 
+                if (average < 15) //Red
+                {
+                    color = "Red";
+                }
+                else if (15 <= average && average < 30) //Orange
+                {
+                    color = "Orange";
+
+                }
+                else if (30 <= average && average < 65) //Yellow
+                {
+                    color = "Yellow";
+
+                }
+                else if (65 <= average && average < 150) //Green
+                {
+                    color = "Green";
+
+                }
+                else if (150 <= average && average < 170) //Turquois
+                {
+                    color = "Turquois";
+
+                }
+                else if (170 <= average && average < 260) //Blue
+                {
+                    color = "Blue";
+
+                }
+                else if (260 <= average && average < 340) //purple
+                {
+                    color = "Purple";
+
+                }
             }
-            else if (65 <= average && average < 150) //Green
-            {
-                color = "Green";
-
-            }
-            else if (150 <= average && average < 170) //Turquois
-            {
-                color = "Turquois";
-
-            }
-            else if (170 <= average && average < 260) //Blue
-            {
-                color = "Blue";
-
-            }
-            else if (260 <= average && average < 340) //purple
-            {
-                color = "Purple";
-
-            }
-
+            
+            Console.WriteLine("BlackCount: " + blackcount);
+            Console.WriteLine("WhiteCount: " + whitecount);
+            Console.WriteLine("Count: " + count);
+            
             return color;
 
 
