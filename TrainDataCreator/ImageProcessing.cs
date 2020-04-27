@@ -281,7 +281,7 @@ namespace TrainDataCreator
                     }
                 }
             }
-            if(count < whitecount || count < blackcount)
+            if(count < whitecount || count < blackcount || count < 5000)
             {
                 if(whitecount < blackcount)
                 {
