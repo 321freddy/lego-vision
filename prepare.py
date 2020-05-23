@@ -12,9 +12,14 @@ import lib
 from lib import *
 
 
+def rgb2gray(rgb):
+    alpha = rgb[...,3]
+    gray = np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
+    return np.dstack((gray,gray,gray,alpha)).astype(np.uint8)
 
 def removeBackground(img):
     img = np.array(img,dtype=np.uint8)
+    img = rgb2gray(img)
 
     # replace black areas with white
     mask = (img[...,3] < 255)
@@ -37,14 +42,14 @@ def removeBackground(img):
     #     factor01 = (255 - mean) / (255 - threshold) # Zahl zw. 0 und 1
     #     bright = image.apply_brightness_shift(gray, 2-factor_range + factor01*factor_range).astype(int)
 
-    # # increase contrast
-    # min=np.min(bright)
-    # max=np.max(bright)
+    # increase contrast
+    min=np.min(gray)
+    max=np.max(gray)
 
-    # # Make a LUT (Look-Up Table) to translate image values
-    # LUT=np.zeros(256,dtype=np.uint8)
-    # LUT[min:max+1]=np.linspace(start=0,stop=255,num=(max-min)+1,endpoint=True,dtype=np.uint8)
-    # bright = LUT[bright]
+    # Make a LUT (Look-Up Table) to translate image values
+    LUT=np.zeros(256,dtype=np.uint8)
+    LUT[min:max+1]=np.linspace(start=0,stop=255,num=(max-min)+1,endpoint=True,dtype=np.uint8)
+    gray = LUT[gray]
 
     # gray[mask] = 255
     # img[...,0:3] = bright

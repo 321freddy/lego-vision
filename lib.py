@@ -13,7 +13,7 @@ import pickle
 img_width = 200
 img_height = 200
 
-dataset_name = 'lego_all_new'
+dataset_name = 'lego_mixed'
 
 # Paths
 dataset_dir     = f'datasets\\{dataset_name}'

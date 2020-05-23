@@ -14,36 +14,15 @@ model,history = lib.load()
 # lib.plot_history(history)
 
 
-def removeBackground(img):
-    img = np.array(img,dtype=np.uint8)
-
-    # replace black areas with white
-    mask = (img < 5)
-    mask = scipy.ndimage.binary_dilation(mask)
-    img[mask] = 255 # white
-    # img[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), img[~mask])
-
-    # increase contrast
-    min=np.min(img)
-    max=np.max(img)
-
-    # Make a LUT (Look-Up Table) to translate image values
-    LUT=np.zeros(256,dtype=np.uint8)
-    LUT[min:max+1]=np.linspace(start=0,stop=255,num=(max-min)+1,endpoint=True,dtype=np.uint8)
-    img = LUT[img]
-
-    return np.array(img, dtype=np.float)
-
-
 datagen = ImageDataGenerator(
                 # samplewise_center=True,
                 # samplewise_std_normalization=True,
                 # zca_whitening=True,
-                brightness_range=[2.0,2.0],
+                # brightness_range=[2.0,2.0],
                 rescale=1./255,
-                fill_mode="constant",
-                cval=0,
-                preprocessing_function=removeBackground,
+                # fill_mode="constant",
+                # cval=0,
+                # preprocessing_function=removeBackground,
             )
 
 
@@ -89,9 +68,9 @@ fig = plt.figure(figsize=(20,4))
 
 rows = len(classes) # num classes
 cols = 10           # num pics per class
-skip = 30
-for row in range(rows):
-    classifyFolder(f'{train_dir}\\{classes[row]}')
+skip = 20
+row = 1
+classifyFolder(f'{train_dir}\\{classes[row]}')
 print('done')
 
 plt.subplots_adjust(wspace=0.5, hspace=0.5, left=0.03, right=1-0.03)

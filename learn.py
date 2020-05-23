@@ -69,7 +69,7 @@ validation_generator = validation_datagen.flow_from_directory(
                 color_mode    = "grayscale",
                 save_to_dir   = f'{dataset_dir}/validation_generated' if only_generate_images else None,
                 shuffle       = False,
-                batch_size    = 28,
+                batch_size    = 32,
                 subset        = "validation",)
 
 print(f'Train generator samples: {train_generator.samples}  batch size: {train_generator.batch_size}  dir: {train_dir}')
@@ -133,7 +133,7 @@ model.add(Dense(len(classes), activation='softmax', kernel_initializer='lecun_no
 print('compiling model....')
 model.compile(
     loss='categorical_crossentropy',
-    optimizer=keras.optimizers.Nadam(lr=0.0001), # Nadam(lr=0.0001), # Adam(lr=0.00005),
+    optimizer=keras.optimizers.Nadam(lr=0.0005), # Nadam(lr=0.0001), # Adam(lr=0.00005),
     metrics=['accuracy']) 
 print('model compiled!!')
 
@@ -203,6 +203,7 @@ lib.plot_history(history)
 
 ### predict manually
 
+train_generator.batch_size = 1
 correct = 0
 checked = 0
 for img in train_generator:
@@ -217,6 +218,7 @@ for img in train_generator:
         break
 
 print("\n\n")
+validation_generator.batch_size = 1
 correct = 0
 checked = 0
 for img in validation_generator:
